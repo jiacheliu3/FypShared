@@ -1,0 +1,20 @@
+/* self-defined colors
+.udf-info{
+/*background-color:hsl(194, 66%, 61%);*/
+	background-color:hsl(194, 85%, 55%) !important;
+}
+.udf-success{
+	/*background-color:hsl(120, 39%, 54%);*/
+	background-color:hsl(120, 55%, 35%) !important;
+}
+.udf-warning{
+	/*background-color:hsl(35, 84%, 62%);*/
+	background-color:hsl(53, 84%, 62%) !important;
+}
+.udf-danger{
+	/*background-color:hsl(2, 64%, 58%);*/
+	background-color:hsl(2, 87%, 58%) !important;
+}
+.text-grey{
+	color:#d2d6de !important;
+}

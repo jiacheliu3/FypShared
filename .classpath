@@ -1,0 +1,241 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<classpath>
+	<classpathentry kind="src" path="src/java"/>
+	<classpathentry excluding="bigbro/search/" kind="src" path="src/groovy"/>
+	<classpathentry kind="src" path="grails-app/conf"/>
+	<classpathentry kind="src" path="grails-app/controllers"/>
+	<classpathentry kind="src" path="grails-app/domain"/>
+	<classpathentry kind="src" path="grails-app/services"/>
+	<classpathentry kind="src" path="grails-app/taglib"/>
+	<classpathentry kind="src" path="grails-app/utils"/>
+	<classpathentry kind="src" path="test/integration"/>
+	<classpathentry kind="src" path="test/unit"/>
+	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
+	<classpathentry exported="true" kind="con" path="GROOVY_DSL_SUPPORT"/>
+	<classpathentry kind="lib" path="C:/Users/jiacheliu3/workspace/CodeBigBroSub/lib/ansj_seg-3.0.jar"/>
+	<classpathentry kind="lib" path="C:/Users/jiacheliu3/workspace/CodeBigBroSub/lib/ansj_seg-3.0-sources.jar"/>
+	<classpathentry kind="lib" path="C:/Users/jiacheliu3/workspace/CodeBigBroSub/lib/commons-cli-1.2.jar"/>
+	<classpathentry kind="lib" path="C:/Users/jiacheliu3/workspace/CodeBigBroSub/lib/fnlp-app-2.1-SNAPSHOT.jar"/>
+	<classpathentry kind="lib" path="C:/Users/jiacheliu3/workspace/CodeBigBroSub/lib/fnlp-core-2.1-SNAPSHOT.jar"/>
+	<classpathentry kind="lib" path="C:/Users/jiacheliu3/workspace/CodeBigBroSub/lib/fnlp-demo-2.1-SNAPSHOT.jar"/>
+	<classpathentry kind="lib" path="C:/Users/jiacheliu3/workspace/CodeBigBroSub/lib/fnlp-dev-2.1-SNAPSHOT.jar"/>
+	<classpathentry kind="lib" path="C:/Users/jiacheliu3/workspace/CodeBigBroSub/lib/fnlp-train-2.1-SNAPSHOT.jar"/>
+	<classpathentry kind="lib" path="C:/Users/jiacheliu3/workspace/CodeBigBroSub/lib/gephi-toolkit.jar"/>
+	<classpathentry kind="lib" path="C:/Users/jiacheliu3/workspace/CodeBigBroSub/lib/gson-2.3.1.jar"/>
+	<classpathentry kind="lib" path="C:/Users/jiacheliu3/workspace/CodeBigBroSub/lib/hamcrest-core-1.3.jar"/>
+	<classpathentry kind="lib" path="C:/Users/jiacheliu3/workspace/CodeBigBroSub/lib/Jama-1.0.3.jar"/>
+	<classpathentry kind="lib" path="C:/Users/jiacheliu3/workspace/CodeBigBroSub/lib/jcseg-analyzer-1.9.2.jar"/>
+	<classpathentry kind="lib" path="C:/Users/jiacheliu3/workspace/CodeBigBroSub/lib/jcseg-core-1.9.2.jar"/>
+	<classpathentry kind="lib" path="C:/Users/jiacheliu3/workspace/CodeBigBroSub/lib/jcseg-solr-1.9.2.jar"/>
+	<classpathentry kind="lib" path="C:/Users/jiacheliu3/workspace/CodeBigBroSub/lib/je-5.0.73.jar"/>
+	<classpathentry kind="lib" path="C:/Users/jiacheliu3/workspace/CodeBigBroSub/lib/json-20140107.jar"/>
+	<classpathentry kind="lib" path="C:/Users/jiacheliu3/workspace/CodeBigBroSub/lib/jsoup-1.7.3.jar"/>
+	<classpathentry kind="lib" path="C:/Users/jiacheliu3/workspace/CodeBigBroSub/lib/jstl-1.2.jar"/>
+	<classpathentry kind="lib" path="C:/Users/jiacheliu3/workspace/CodeBigBroSub/lib/junit-4.11.jar"/>
+	<classpathentry kind="lib" path="C:/Users/jiacheliu3/workspace/CodeBigBroSub/lib/juniversalchardet-1.0.3.jar"/>
+	<classpathentry kind="lib" path="C:/Users/jiacheliu3/workspace/CodeBigBroSub/lib/liblinear-1.92.jar"/>
+	<classpathentry kind="lib" path="C:/Users/jiacheliu3/workspace/CodeBigBroSub/lib/libsvm.jar"/>
+	<classpathentry kind="lib" path="C:/Users/jiacheliu3/workspace/CodeBigBroSub/lib/nlp-lang-1.0.2.jar"/>
+	<classpathentry kind="lib" path="C:/Users/jiacheliu3/workspace/CodeBigBroSub/lib/standard-1.1.2.jar"/>
+	<classpathentry kind="lib" path="C:/Users/jiacheliu3/workspace/CodeBigBroSub/lib/tree_split-1.4.jar"/>
+	<classpathentry kind="lib" path="C:/Users/jiacheliu3/workspace/CodeBigBroSub/lib/trove4j-3.0.3.jar"/>
+	<classpathentry kind="lib" path="C:/Users/jiacheliu3/workspace/CodeBigBroSub/lib/WebCollector-2.12.jar"/>
+	<classpathentry kind="lib" path="C:/Users/jiacheliu3/workspace/CodeBigBroSub/lib/ajt-2.9.jar"/>
+	<classpathentry kind="lib" path="C:/Users/jiacheliu3/workspace/CodeBigBroSub/lib/commons-math-1.2.jar"/>
+	<classpathentry kind="lib" path="C:/Users/jiacheliu3/workspace/CodeBigBroSub/lib/weka.jar"/>
+	<classpathentry kind="lib" path="C:/Users/jiacheliu3/workspace/CodeBigBroSub/lib/javaml-0.1.7.jar"/>
+	<classpathentry kind="lib" path="C:/Users/jiacheliu3/workspace/CodeBigBroSub/lib/mallet/bsh.jar"/>
+	<classpathentry kind="lib" path="C:/Users/jiacheliu3/workspace/CodeBigBroSub/lib/mallet/derby.jar"/>
+	<classpathentry kind="lib" path="C:/Users/jiacheliu3/workspace/CodeBigBroSub/lib/mallet/grmm-deps.jar"/>
+	<classpathentry kind="lib" path="C:/Users/jiacheliu3/workspace/CodeBigBroSub/lib/mallet/jdom-1.0.jar"/>
+	<classpathentry kind="lib" path="C:/Users/jiacheliu3/workspace/CodeBigBroSub/lib/mallet/jgrapht-0.6.0.jar"/>
+	<classpathentry kind="lib" path="C:/Users/jiacheliu3/workspace/CodeBigBroSub/lib/mallet/jwnl-1.3.jar"/>
+	<classpathentry kind="lib" path="C:/Users/jiacheliu3/workspace/CodeBigBroSub/lib/mallet/mallet-2.0.7(1).jar"/>
+	<classpathentry kind="lib" path="C:/Users/jiacheliu3/workspace/CodeBigBroSub/lib/mallet/mallet-deps.jar"/>
+	<classpathentry kind="lib" path="C:/Users/jiacheliu3/workspace/CodeBigBroSub/lib/mallet/mtj-0.9.9.jar"/>
+	<classpathentry kind="lib" path="C:/Users/jiacheliu3/workspace/CodeBigBroSub/lib/mallet/openjgraph.jar"/>
+	<classpathentry kind="lib" path="C:/Users/jiacheliu3/workspace/CodeBigBroSub/lib/log4j-1.2.17.jar"/>
+	<classpathentry kind="lib" path="C:/Users/jiacheliu3/workspace/CodeBigBroSub/lib/slf4j-log4j12-1.7.9.jar"/>
+	<classpathentry kind="lib" path="C:/Users/jiacheliu3/workspace/CodeBigBroSub/lib/slf4j-api-1.7.9.jar"/>
+	<classpathentry kind="lib" path="C:/Users/jiacheliu3/workspace/CodeBigBroSub/lib/bsh.jar"/>
+	<classpathentry kind="lib" path="C:/Users/jiacheliu3/workspace/CodeBigBroSub/lib/derby.jar"/>
+	<classpathentry kind="lib" path="C:/Users/jiacheliu3/workspace/CodeBigBroSub/lib/grmm-deps.jar"/>
+	<classpathentry kind="lib" path="C:/Users/jiacheliu3/workspace/CodeBigBroSub/lib/jdom-1.0.jar"/>
+	<classpathentry kind="lib" path="C:/Users/jiacheliu3/workspace/CodeBigBroSub/lib/jgrapht-0.6.0.jar"/>
+	<classpathentry kind="lib" path="C:/Users/jiacheliu3/workspace/CodeBigBroSub/lib/jwnl-1.3.jar"/>
+	<classpathentry kind="lib" path="C:/Users/jiacheliu3/workspace/CodeBigBroSub/lib/mallet-2.0.7(1).jar"/>
+	<classpathentry kind="lib" path="C:/Users/jiacheliu3/workspace/CodeBigBroSub/lib/mtj-0.9.9.jar"/>
+	<classpathentry kind="lib" path="C:/Users/jiacheliu3/workspace/CodeBigBroSub/lib/openjgraph.jar"/>
+	<classpathentry excluding="BuildConfig.groovy|*DataSource.groovy|UrlMappings.groovy|Config.groovy|BootStrap.groovy|spring/resources.groovy" kind="src" path=".link_to_grails_plugins/asset-pipeline-1.9.9/grails-app/conf">
+		<attributes>
+			<attribute name="org.grails.ide.eclipse.core.SOURCE_FOLDER" value="true"/>
+		</attributes>
+	</classpathentry>
+	<classpathentry kind="src" path=".link_to_grails_plugins/asset-pipeline-1.9.9/grails-app/controllers">
+		<attributes>
+			<attribute name="org.grails.ide.eclipse.core.SOURCE_FOLDER" value="true"/>
+		</attributes>
+	</classpathentry>
+	<classpathentry kind="src" path=".link_to_grails_plugins/asset-pipeline-1.9.9/grails-app/services">
+		<attributes>
+			<attribute name="org.grails.ide.eclipse.core.SOURCE_FOLDER" value="true"/>
+		</attributes>
+	</classpathentry>
+	<classpathentry kind="src" path=".link_to_grails_plugins/asset-pipeline-1.9.9/grails-app/taglib">
+		<attributes>
+			<attribute name="org.grails.ide.eclipse.core.SOURCE_FOLDER" value="true"/>
+		</attributes>
+	</classpathentry>
+	<classpathentry kind="src" path=".link_to_grails_plugins/asset-pipeline-1.9.9/src/groovy">
+		<attributes>
+			<attribute name="org.grails.ide.eclipse.core.SOURCE_FOLDER" value="true"/>
+		</attributes>
+	</classpathentry>
+	<classpathentry excluding="BuildConfig.groovy|*DataSource.groovy|UrlMappings.groovy|Config.groovy|BootStrap.groovy|spring/resources.groovy" kind="src" path=".link_to_grails_plugins/cache-1.1.8/grails-app/conf">
+		<attributes>
+			<attribute name="org.grails.ide.eclipse.core.SOURCE_FOLDER" value="true"/>
+		</attributes>
+	</classpathentry>
+	<classpathentry kind="src" path=".link_to_grails_plugins/cache-1.1.8/grails-app/services">
+		<attributes>
+			<attribute name="org.grails.ide.eclipse.core.SOURCE_FOLDER" value="true"/>
+		</attributes>
+	</classpathentry>
+	<classpathentry kind="src" path=".link_to_grails_plugins/cache-1.1.8/grails-app/taglib">
+		<attributes>
+			<attribute name="org.grails.ide.eclipse.core.SOURCE_FOLDER" value="true"/>
+		</attributes>
+	</classpathentry>
+	<classpathentry kind="src" path=".link_to_grails_plugins/cache-1.1.8/src/groovy">
+		<attributes>
+			<attribute name="org.grails.ide.eclipse.core.SOURCE_FOLDER" value="true"/>
+		</attributes>
+	</classpathentry>
+	<classpathentry kind="src" path=".link_to_grails_plugins/cache-1.1.8/src/java">
+		<attributes>
+			<attribute name="org.grails.ide.eclipse.core.SOURCE_FOLDER" value="true"/>
+		</attributes>
+	</classpathentry>
+	<classpathentry kind="src" path=".link_to_grails_plugins/coffeescript-resources-0.3.8/grails-app/resourceMappers">
+		<attributes>
+			<attribute name="org.grails.ide.eclipse.core.SOURCE_FOLDER" value="true"/>
+		</attributes>
+	</classpathentry>
+	<classpathentry kind="src" path=".link_to_grails_plugins/coffeescript-resources-0.3.8/src/groovy">
+		<attributes>
+			<attribute name="org.grails.ide.eclipse.core.SOURCE_FOLDER" value="true"/>
+		</attributes>
+	</classpathentry>
+	<classpathentry excluding="BuildConfig.groovy|*DataSource.groovy|UrlMappings.groovy|Config.groovy|BootStrap.groovy|spring/resources.groovy" kind="src" path=".link_to_grails_plugins/database-migration-1.4.0/grails-app/conf">
+		<attributes>
+			<attribute name="org.grails.ide.eclipse.core.SOURCE_FOLDER" value="true"/>
+		</attributes>
+	</classpathentry>
+	<classpathentry kind="src" path=".link_to_grails_plugins/database-migration-1.4.0/grails-app/controllers">
+		<attributes>
+			<attribute name="org.grails.ide.eclipse.core.SOURCE_FOLDER" value="true"/>
+		</attributes>
+	</classpathentry>
+	<classpathentry kind="src" path=".link_to_grails_plugins/database-migration-1.4.0/grails-app/views">
+		<attributes>
+			<attribute name="org.grails.ide.eclipse.core.SOURCE_FOLDER" value="true"/>
+		</attributes>
+	</classpathentry>
+	<classpathentry kind="src" path=".link_to_grails_plugins/database-migration-1.4.0/src/groovy">
+		<attributes>
+			<attribute name="org.grails.ide.eclipse.core.SOURCE_FOLDER" value="true"/>
+		</attributes>
+	</classpathentry>
+	<classpathentry kind="src" path=".link_to_grails_plugins/hibernate4-4.3.6.1/src/java">
+		<attributes>
+			<attribute name="org.grails.ide.eclipse.core.SOURCE_FOLDER" value="true"/>
+		</attributes>
+	</classpathentry>
+	<classpathentry kind="src" path=".link_to_grails_plugins/jquery-1.11.1/grails-app/assets">
+		<attributes>
+			<attribute name="org.grails.ide.eclipse.core.SOURCE_FOLDER" value="true"/>
+		</attributes>
+	</classpathentry>
+	<classpathentry excluding="BuildConfig.groovy|*DataSource.groovy|UrlMappings.groovy|Config.groovy|BootStrap.groovy|spring/resources.groovy" kind="src" path=".link_to_grails_plugins/jquery-1.11.1/grails-app/conf">
+		<attributes>
+			<attribute name="org.grails.ide.eclipse.core.SOURCE_FOLDER" value="true"/>
+		</attributes>
+	</classpathentry>
+	<classpathentry kind="src" path=".link_to_grails_plugins/jquery-1.11.1/grails-app/services">
+		<attributes>
+			<attribute name="org.grails.ide.eclipse.core.SOURCE_FOLDER" value="true"/>
+		</attributes>
+	</classpathentry>
+	<classpathentry kind="src" path=".link_to_grails_plugins/jquery-1.11.1/grails-app/taglib">
+		<attributes>
+			<attribute name="org.grails.ide.eclipse.core.SOURCE_FOLDER" value="true"/>
+		</attributes>
+	</classpathentry>
+	<classpathentry kind="src" path=".link_to_grails_plugins/jquery-1.11.1/src/groovy">
+		<attributes>
+			<attribute name="org.grails.ide.eclipse.core.SOURCE_FOLDER" value="true"/>
+		</attributes>
+	</classpathentry>
+	<classpathentry excluding="BuildConfig.groovy|*DataSource.groovy|UrlMappings.groovy|Config.groovy|BootStrap.groovy|spring/resources.groovy" kind="src" path=".link_to_grails_plugins/resources-1.2.8/grails-app/conf">
+		<attributes>
+			<attribute name="org.grails.ide.eclipse.core.SOURCE_FOLDER" value="true"/>
+		</attributes>
+	</classpathentry>
+	<classpathentry kind="src" path=".link_to_grails_plugins/resources-1.2.8/grails-app/i18n">
+		<attributes>
+			<attribute name="org.grails.ide.eclipse.core.SOURCE_FOLDER" value="true"/>
+		</attributes>
+	</classpathentry>
+	<classpathentry kind="src" path=".link_to_grails_plugins/resources-1.2.8/grails-app/resourceMappers">
+		<attributes>
+			<attribute name="org.grails.ide.eclipse.core.SOURCE_FOLDER" value="true"/>
+		</attributes>
+	</classpathentry>
+	<classpathentry kind="src" path=".link_to_grails_plugins/resources-1.2.8/grails-app/taglib">
+		<attributes>
+			<attribute name="org.grails.ide.eclipse.core.SOURCE_FOLDER" value="true"/>
+		</attributes>
+	</classpathentry>
+	<classpathentry kind="src" path=".link_to_grails_plugins/resources-1.2.8/src/groovy">
+		<attributes>
+			<attribute name="org.grails.ide.eclipse.core.SOURCE_FOLDER" value="true"/>
+		</attributes>
+	</classpathentry>
+	<classpathentry kind="src" path=".link_to_grails_plugins/resources-1.2.8/src/java">
+		<attributes>
+			<attribute name="org.grails.ide.eclipse.core.SOURCE_FOLDER" value="true"/>
+		</attributes>
+	</classpathentry>
+	<classpathentry kind="src" path=".link_to_grails_plugins/scaffolding-2.1.2/src/groovy">
+		<attributes>
+			<attribute name="org.grails.ide.eclipse.core.SOURCE_FOLDER" value="true"/>
+		</attributes>
+	</classpathentry>
+	<classpathentry kind="src" path=".link_to_grails_plugins/scaffolding-2.1.2/src/java">
+		<attributes>
+			<attribute name="org.grails.ide.eclipse.core.SOURCE_FOLDER" value="true"/>
+		</attributes>
+	</classpathentry>
+	<classpathentry kind="src" path=".link_to_grails_plugins/tomcat-7.0.55/src/groovy">
+		<attributes>
+			<attribute name="org.grails.ide.eclipse.core.SOURCE_FOLDER" value="true"/>
+		</attributes>
+	</classpathentry>
+	<classpathentry kind="src" path=".link_to_grails_plugins/tomcat-7.0.55/src/java">
+		<attributes>
+			<attribute name="org.grails.ide.eclipse.core.SOURCE_FOLDER" value="true"/>
+		</attributes>
+	</classpathentry>
+	<classpathentry excluding="BuildConfig.groovy|*DataSource.groovy|UrlMappings.groovy|Config.groovy|BootStrap.groovy|spring/resources.groovy" kind="src" path=".link_to_grails_plugins/webxml-1.4.1/grails-app/conf">
+		<attributes>
+			<attribute name="org.grails.ide.eclipse.core.SOURCE_FOLDER" value="true"/>
+		</attributes>
+	</classpathentry>
+	<classpathentry kind="src" path=".link_to_grails_plugins/webxml-1.4.1/src/groovy">
+		<attributes>
+			<attribute name="org.grails.ide.eclipse.core.SOURCE_FOLDER" value="true"/>
+		</attributes>
+	</classpathentry>
+	<classpathentry kind="con" path="org.grails.ide.eclipse.core.CLASSPATH_CONTAINER"/>
+	<classpathentry kind="output" path="target-eclipse/classes"/>
+</classpath>
