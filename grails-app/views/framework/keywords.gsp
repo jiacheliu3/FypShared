@@ -221,48 +221,15 @@ canvas {
 
 					//scale the data before converting into wordcloud required form
 					var list = jsonData;
-					var map = scale(list);
-
-					var arr = [];
-					for ( var e in map) {
-						//console.log(e, map[e]);
-						arr.push([ e, map[e] ]);
-					}
-
+					//convert the data to desired format
+					var arr=wordCloudFormat(list);
 					//generate the buttons
 					generateButtons(arr);
 
-					console.log("start drawing");
-					WordCloud(document.getElementById('wordCloudCanvas'), {
-						list : arr,
-						//weightFactor : 50,
-						rotateRatio : 0,
-						backgroundColor : '#ffffff',//ccccff before
-						color : function(word, weight) {
-							console.log("word:" + word + " weight:" + weight);
-							if (weight == 50)
-								return '#99ccff';
-							else if (weight > 50 && weight < 75)
-								return '#9933ff';
-							else if (weight == 75)
-								return '#3399cc';
-							else if (weight > 75 && weight < 100)
-								return '#990033';
-							else if (weight == 100)
-								return '#cc0033';
-							else
-								return '#000000';
-
-						},
-					});
-					console.log("drawn");
+					var zone=document.getElementById('wordCloudCanvas');
+					drawWordCloud(arr,zone);
+					
 					keywordFinished = true;
-					console.log("Keyword finished, fire network");
-					if (relationFinished) {
-						console.log("Last job finished, fire network");
-						// go on with network
-						asynchroNetwork();
-					}
 					console.log("Stop progress bar");
 					//stopBootstrapProgressBar('keyword');
 				});

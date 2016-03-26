@@ -1,16 +1,13 @@
 package clustering
 
 import static grails.async.Promises.*
-import grails.async.Promise
-import grails.async.PromiseList
 import groovy.util.logging.Log4j
 
 import java.util.concurrent.*
 
-import segmentation.PythonCaller
 import segmentation.SepManager
-import cc.mallet.cluster.Clustering
 import cc.mallet.types.SparseVector
+import codebigbrosub.Job
 import codebigbrosub.User
 import codebigbrosub.Weibo
 @Log4j
@@ -29,6 +26,10 @@ class ClusterManager {
 	//store the wordbags generated
 	def wordbags;
 
+	Job job;//store a reference of job for the sake of logging
+	public ClusterManager(Job job){
+		this.job=job;
+	}
 	//if not specified, use the top 200 microblogs are training data
 	public  generateTrainingSet(){
 		//load data

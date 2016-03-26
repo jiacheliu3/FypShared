@@ -33,6 +33,12 @@ grails.mime.types = [ // the first one is the default format
     xml:           ['text/xml', 'application/xml']
 ]
 
+//for file on server
+//grails.plugins.fileserver.paths=[
+//	"resources": "D:/FypGitRepo/web-app/resources",
+//	"root2": "/path/to/dir2"
+//]
+
 // URL Mapping Cache Max Size, defaults to 5000
 //grails.urlmapping.cache.maxsize = 1000
 
@@ -62,7 +68,7 @@ grails {
 }
 
 grails.resources.adhoc.includes = [
-	'/images/**', '/css/**', '/js/**', '/img/**','/fonts/**'
+	'/images/**', '/css/**', '/js/**', '/img/**','/fonts/**','/data/**'
 ]
 
 grails.converters.encoding = "UTF-8"
@@ -120,13 +126,16 @@ log4j.main = {
 
 	root{
 		info 'dailyAppender','stdout'
+		debug 'dailyAppender','stdout'
 		error 'stdout','dailyAppender'
 	}
 	
-	info 'grails.app.controllers',
-			'grails.app.domain'
+	//info 'grails.app.controllers',
+    //			'grails.app.domain'
 			
-	debug  'clustering',
+	debug   'grails.app.controllers',
+			'grails.app.domain',
+			'clustering',
 			'crawler',
 			'exceptions',
 			'input',
@@ -136,7 +145,9 @@ log4j.main = {
 			'search',
 			'segmentation',
 			'svm',
-			'vectorization'
+			'vectorization',
+			'toolkit',
+			'grails.app.controllers.org.grails.plugins.fileserver'//file server
 	
 	//default starts here		
     error  'org.codehaus.groovy.grails.web.servlet',        // controllers

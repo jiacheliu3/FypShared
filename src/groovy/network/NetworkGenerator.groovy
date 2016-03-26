@@ -1,22 +1,20 @@
 package network
 
+import exceptions.*
+import groovy.util.logging.Log4j
 import input.*
-
-import java.util.regex.Matcher
-import java.util.regex.Pattern
+import network.Network.Link
+import network.Network.Node
 
 import org.jsoup.Jsoup
 import org.jsoup.nodes.Document
-import org.jsoup.nodes.Element
-import org.jsoup.select.Elements
 
-import pattern.PatternMiner;
+import pattern.PatternMiner
+import codebigbrosub.Job
 import codebigbrosub.User
 import codebigbrosub.Weibo
 import crawler.*
-import exceptions.*
-import groovy.json.JsonOutput
-import groovy.util.logging.Log4j
+import static toolkit.JobLogger.jobLog
 
 @Log4j
 class NetworkGenerator {
@@ -27,340 +25,50 @@ class NetworkGenerator {
 	public PatternMiner patternMiner;
 	boolean studied;
 
+	public Job job;//save a reference of job for the sake of logging
 	// get one session to use
 	public static  checkLoginStatus(){
 		def cookies=CrackedCookieRepo.getOneCookie();
 		if(cookies!=null){
-			println "Got cookies for weibo.cn";
-			println cookies;
+			log.info "Got cookies for weibo.cn";
+			log.info cookies;
 		}else{
-			println "Null cookies!";
+			log.error "Null cookies!";
 
 		}
 		return cookies;
 	}
-	public userWeiboCrawl(User u,List<Weibo> weibos){
+	public NetworkGenerator(Job job){
+		this.job=job;
+		log.debug "Set job in NetworkGenerator.";
+	}
+	public userWeiboCrawl(User u,List<Weibo> weibos,WeiboCrawlerMaster crawlerMaster){
+		log.info "Start crawling user's weibo items";
+		
+		jobLog(job.id,"Start crawling all the microblogs of user.");
 		int retryTimes=3;
 		int timeOut=1000;
 		String n=u.weiboName;
-		//check login before crawling
-		def cookies=checkLoginStatus();
+		log.info "${weibos.size()} weibo pieces to start with. ";
 
-		println "${weibos.size()} weibo pieces to start with. ";
-
-		//store support info
-		def support=[:];
-		support.put("comment",new HashMap<String,Integer>());
-		support.put("forward",new HashMap<String,Integer>());
-		support.put("like",new HashMap<String,Integer>());
-
-		//store user interaction of each weibo
-		Map<Weibo,ArrayList> interaction=new HashMap<>();
+		def support=crawlerMaster.crawlRCL(u,weibos);
+		//store the contents from support into user fields
+		def interaction=support["interactions"];
 		
-		weibos.each{it->
-			//put the weibo into interaction map
-			ArrayList<String> nameList=new ArrayList<>();
-			
-			String content=it.content;
-			//find forward information
-			Pattern mention=Patterns.AT.value();
-			Matcher mm=mention.matcher(content);
-			while(mm.find()){
-				String name=mm.group();
-				//remove the @ sign in forward tag
-				name=name.replace("@","");
-
-				//println "Remove @ in ${name}";
-				u.forwarding.add(name);
-				nameList.add(name);
-			}
-			//get comments
-			String url=it.url;
-			url=url.replace("weibo.com","weibo.cn");
-			println "Going to ${url}";
-			//fetch the comments for 5 times before abort
-			boolean gotComment=false;
-			boolean gotForward=false;
-			boolean gotLike=false;
-			for(int count=0;count<retryTimes&&gotComment==false;count++){
-				try{
-					Document doc;
-					doc = Jsoup.connect(url)
-							.data("query", "Java")
-							.userAgent("Mozilla")
-							.cookies(cookies)
-							.timeout(timeOut)
-							.post();
-					//check if the text contains number
-					def hasNumber={text->
-						def numbers=text.findAll( /\d+/ );
-						println "Got number ${numbers}";
-						if(numbers.size()==0)
-							return false;
-						else if(numbers.get(0)==0)
-							return false;
-						else
-							return true;
-
-					}
-					//check the repost and like count
-					String forwardSelector="/repost";
-					def forwardHolder=doc.select("a[href~=/repost]");
-					Element forwardElement=forwardHolder.get(0);
-					String forwardText=forwardElement.text();
-					println "Got forward span ${forwardText}";
-					gotForward=hasNumber(forwardText);
-
-					String likeSelector="/attitude";
-					def likeHolder=doc.select("a[href~=/attitude]");
-					Element likeElement=likeHolder.get(0);
-					String likeText=likeElement.text();
-					gotLike=hasNumber(likeText);
-
-					println "Got "+doc.text();
-					if(loggedIn(doc)){
-						String subquery="C_";
-						//String query="div[id^=\"C_\"]";
-						Elements comments=doc.select("div[id^=${subquery}]");
-						if(comments.size()==0){println "No comments from this one";}
-						comments.each{
-							String raw=it.text();
-							int colon=raw.indexOf(":");
-							String name=raw.substring(0,colon).trim();
-							String body=raw.substring(colon+1).trim();
-							println "Found comment from user ${name}";
-							//add to comment list
-							u.commented.add(name);
-							nameList.add(name);
-							if(!support["comment"].containsKey(name)){
-								support["comment"].put(name,1);
-							}else{
-								support["comment"][name]=support["comment"][name]+1;
-							}
-						}
-						gotComment=true;
-					}
-					else{
-						println "Not in logged in status";
-						//doc=logIn(url);
-					}
-
-
-				}catch(SocketTimeoutException e){
-					println "Fetch comment time-out for the ${count}th try";
-					continue;
-				}
-				catch(IndexOutOfBoundsException e){
-					println "Login failed or field extraction failed";
-					continue;
-				}catch(Exception e){
-					e.printStackTrace();
-				}
-				//sleep 1 second
-				//waitASecond();
-				sleep(1000);
-			}
-			if(gotComment==false){
-				println "Failed to get comments at last!";
-			}
-
-
-			String userId=u.weiboId;
-			String forwardUrl=url.replace("comment","repost");
-			println("Made repost url "+forwardUrl);
-			for(int count=0;count<retryTimes&&gotForward==false;count++){
-				try{
-					Document doc;
-					doc = Jsoup.connect(forwardUrl)
-							.data("query", "Java")
-							.userAgent("Mozilla")
-							.cookies(cookies)
-							.timeout(timeOut)
-							.post();
-
-					println "Got "+doc.text();
-					if(loggedIn(doc)){
-						String subquery1="c";
-						//String subquery2="C_";
-						//String query="div[id^=\"C_\"]";
-						Elements forwards=doc.select("div[class=${subquery1}]");
-						//iterate in reverse order
-						int siz=forwards.size();
-						if(siz==0){
-							println "No forward found";
-						}
-						else{
-							boolean forwardStart;
-							boolean forwardEnd;
-							for(int i=siz-1;i>0&&forwardEnd==false;i--){
-								Element f=forwards.get(i);
-								//log.debug "Content of this forward element is "+f;
-								String t=f.text();
-								println "Text of this element is"+ t;
-								int index=t.indexOf(":");
-								int neg=t.indexOf("@");
-								if(index==-1||neg<index){
-									if(forwardStart){
-										println "Now reached the end of forwardings.";
-										forwardEnd=true;
-									}else{
-
-										println "No forward in this one";
-									}
-
-								}
-								else{
-
-									if(!forwardStart){
-										println "Now start the forward messages.";
-										forwardStart=true;
-									}
-
-									log.debug "Located : in text "+t;
-									String fName=t.substring(0,index).trim().replaceAll("\\?","");
-									if(fName.contains("\\u8f6c\\u53d1\\u4e86")||fName.contains(" ")){
-										
-										println "Text ${fName} is not a user name. Dispose.";
-									}
-									else{
-										println "User ${fName} forwarded this user's weibo.";
-										if(fName==n){
-											println "This user forwarded his own weibo.";
-										}else{
-											//record
-											u.forwarded.add(fName);
-											nameList.add(fName);
-											if(!support["forward"].containsKey(fName)){
-												support["forward"].put(fName,1);
-											}else{
-												int fNow=support["forward"][fName];
-												support["forward"][fName]=fNow+1;
-											}
-										}
-									}
-									//find whose weibo this user has forwarded
-									Pattern fwp=Pattern.compile("//@\\S+?:");
-									Matcher fwm=fwp.matcher(t);
-									while(fwm.find()){
-										String fwt=fwm.group();
-										if(fwt.length()<=3){}
-										else{
-											String fwn=fwt.substring(3,fwt.length()-1);
-											if(fwn!=n){
-												log.info "User has forwarded ${fwn}'s weibo.";
-												u.forwarding.add(fwn);
-												nameList.add(fwn);
-											}
-										}
-									}
-								}
-
-							}
-
-						}
-						gotForward=true;
-					}
-					else{
-						println("Need to log in");
-						doc=logIn(forwardUrl);
-					}
-
-
-
-				}catch(SocketTimeoutException e){
-					println "Fetch reposts time-out for the ${count}th try";
-					continue;
-				}catch(IndexOutOfBoundsException e){
-					println "Login failed or field extraction failed";
-					continue;
-				}catch(Exception e){
-					e.printStackTrace();
-				}
-				//sleep 1 second
-				//waitASecond();
-			}
-			if(gotForward==false){
-				println "Failed to get forwards at last!";
-			}
-
-			//find likes on this weibo, count as comments from others
-			String likeUrl=url.replace("comment","attitude");
-			println("Made attitude url "+likeUrl);
-			for(int count=0;count<retryTimes&&gotLike==false;count++){
-
-				try{
-					Document doc;
-					doc = Jsoup.connect(likeUrl)
-							.data("query", "Java")
-							.userAgent("Mozilla")
-							.cookies(cookies)
-							.timeout(timeOut)
-							.post();
-
-					if(loggedIn(doc)){
-						String c="c";
-						String M="M";
-						//String query="div[id^=\"C_\"]";
-						Elements likes=doc.select("div[class=${c}]:not([id^=${M}]");
-						likes.each{attitude->
-							String t=attitude.text();
-							if(t.contains("\u524d")){
-								int space=t.indexOf(" ");
-								if(space==-1){
-									println("Error in processing likes in "+t);
-								}else{
-									String name=t.substring(0,space);
-									println("Got liker "+name);
-									//record
-									u.commented.add(name);
-									if(!support["like"].containsKey(name)){
-										support["like"].put(name,1);
-									}else{
-										support["like"][name]=support["like"][name]+1;
-									}
-									nameList.add(name);
-								}
-							}
-
-						}
-
-						gotLike=true;
-					}
-					else{
-						println "Not logged in. Cannot find likes.";
-					}
-				}catch(SocketTimeoutException e){
-					println "Fetch likes time-out for the ${count}th try";
-					continue;
-				}catch(IndexOutOfBoundsException e){
-					println "Login failed or field extraction failed";
-					continue;
-				}catch(Exception e){
-					e.printStackTrace();
-				}
-				//sleep 1 second
-				//waitASecond();
-				sleep(1000);
-			}
-			if(gotLike==false){
-				println "Failed to get likes at last!";
-			}
-			
-			//store the namelist of interaction
-			interaction.put(it,nameList);
-			if(patternMiner==null){
-				patternMiner=new PatternMiner();
-			}
-			patternMiner.storeInteractions(interaction);
-			log.info "Interactions passed to the pattern miner.";
+		if(patternMiner==null){
+			patternMiner=new PatternMiner();
 		}
+		patternMiner.storeInteractions(interaction);
+		log.info "Interactions passed to the pattern miner.";
+		
 		User.withTransaction{
 			u.merge(flush:true);
-			if(u.hasErrors())
-				println u.errors;
-			else{
-				println "User network study complete";
-				println "Now user has forwarding:${u.forwarding}, commented: ${u.commented}, forwarded:${u.forwarded}, commented:${u.commenting}"
+			if(u.hasErrors()){
+				log.error "Error saving user interactions for user.";
+				log.error u.errors;
+			}else{
+				log.info "User network study complete";
+				log.info "Now user has forwarding:${u.forwarding}, commented: ${u.commented}, forwarded:${u.forwarded}, commented:${u.commenting}"
 			}
 		}
 		//report support
@@ -370,7 +78,7 @@ class NetworkGenerator {
 	public static userWeiboCrawlHK(User u,List<Weibo> weibos){
 		int retryTimes=3;
 		int timeOut=1000;
-		println "${weibos.size()} weibo pieces to start with. ";
+		log.info "${weibos.size()} weibo pieces to start with. ";
 
 		weibos.each{
 			String url=it.url;
@@ -402,10 +110,10 @@ class NetworkGenerator {
 
 
 				}catch(SocketTimeoutException e){
-					println "Fetch likes time-out for the ${count}th try";
+					log.error "Fetch likes time-out for the ${count}th try";
 					continue;
 				}catch(IndexOutOfBoundsException e){
-					println "Login failed or field extraction failed";
+					log.error "Login failed or field extraction failed";
 					continue;
 				}catch(Exception e){
 					e.printStackTrace();
@@ -431,7 +139,7 @@ class NetworkGenerator {
 		}
 		return betterMap;
 	}
-	public formNetwork(User u){
+	public formNetwork(User u,WeiboCrawlerMaster crawlerMaster){
 		if(u==null){
 			throw new UserNotFoundException();
 		}
@@ -439,34 +147,40 @@ class NetworkGenerator {
 		String n=u.weiboName;
 		//for each weibo get info like comments, likes, forwards
 		Weibo.withTransaction{weibos=Weibo.findAll("from Weibo as w where w.ownerName=:name",[name:n]);}
+		if(weibos==null||weibos.size()==0){
+			log.error "The user has no weibo. No network can be formed.";
+			jobLog(job.id,"No weibo known for the network study. You should activate the crawler first.");
+		}
 
 		//pass to study
-		def support=userWeiboCrawl(u,weibos);
+		def support=userWeiboCrawl(u,weibos,crawlerMaster);
 
 		//use hk site to crawl
 		//userWeiboCrawlHK(u,weibos);
 
 		//return similar
+		
 		//sort before return
+		jobLog(job.id,"Reordering the supports to make it more logical.");
+		def reorder={map,total->
+			def newMap=map.sort { a, b -> b.value <=> a.value };
+			newMap=filterSupport(newMap,total);
+			return newMap;
+		}
 		int total=weibos.size();
-		def comment=support["comment"];
-		comment=comment.sort { a, b -> b.value <=> a.value };
-		comment=filterSupport(comment,total);
-		def forward=support["forward"];
-		forward=forward.sort { a, b -> b.value <=> a.value };
-		forward=filterSupport(forward,total);
-		def like=support["like"];
-		like=like.sort { a, b -> b.value <=> a.value };
-		like=filterSupport(like,total);
+		def newSupport=[:];
+		newSupport.put("forwarded",reorder(support["forwarded"],total));
+		newSupport.put("forwarding",reorder(support["forwarding"],total));
+		newSupport.put("commented",reorder(support["commented"],total));
+		newSupport.put("commenting",reorder(support["commenting"],total));
+		newSupport.put("liked",reorder(support["liked"],total));
+		newSupport.put("liking",reorder(support["liking"],total));
+		newSupport.put("mentioning",reorder(support["mentioning"],total));
+		newSupport.put("mentioned",reorder(support["mentioned"],total));
+		newSupport.put("total",weibos.size());
+		log.debug "Final support after sorting is:"+newSupport;
 
-		support["forward"]=forward;
-		support["comment"]=comment;
-		support["like"]=like;
-		support["total"]=weibos.size();
-
-		log.debug "Final support after sorting is:"+support;
-
-		return support;
+		return newSupport;
 
 	}
 	public studyPatterns(){
@@ -475,37 +189,24 @@ class NetworkGenerator {
 			return null;
 		}
 		def result=patternMiner.studyPatterns();
+		jobLog(job.id,"Pattern mining is complete. The found patterns are: ");
+		jobLog(job.id,result.toString());
 		return result;
 	}
 	public static void waitASecond(){
 		sleep(500);
 	}
-	public static boolean loggedIn(Document doc){
-		String title=doc.title();
-		println "Title is ${title}";
-		if(title=="\u5fae\u535a"||title=='\u65b0\u6d6a\u901a\u884c\u8bc1'){
-			println "Document deemed not logged in";
-			println doc.text();
-			return false;
-		}else{
 
-			return true;
-		}
-	}
-	public static Document logIn(String url){
-		def c=UserWeiboCrawler.login("18717731224","KOFkof94");
-		def cookies=c;
-		Document doc=Jsoup.connect(url)
-				.data("query", "Java")
-				.userAgent("Mozilla")
-				.cookies(c)
-				.timeout(1500)
-				.post();
-		return doc;
-	}
 	public findSimilar(User u){
-		HashSet<String> related=getFriends(u);
 		HashMap<String,Network> similar=new HashMap<>();
+		if(u==null){
+			log.error "Passed an empty user to network generator!";
+			//generate new empty network
+			Network empty=new Network();
+			similar.put("all",empty);
+			return similar;
+		}
+		HashSet<String> related=getFriends(u);
 		//check if the network is empty
 		int siz;
 		Weibo.withTransaction{
@@ -520,19 +221,16 @@ class NetworkGenerator {
 			similar.put("all",empty);
 			return similar;
 		}
-		println("Generating full network");
+		log.info("Generating full network");
 		Network fullNetwork=generate(u,related);
-		println("Network completed: "+fullNetwork);
+		log.info("Network completed: "+fullNetwork);
 		//reduce the scale of the network
 		if(fullNetwork.isLarge()){
-			println "network is large";
+			log.info "network is large";
 			//fullNetwork=reduceNetwork(fullNetwork);
 		}
 		//improve network by marking top pagerank ones
 		fullNetwork=improveNetwork(fullNetwork);
-		String json=JsonOutput.toJson(fullNetwork);
-		println(json);
-
 		similar.put("all",fullNetwork);
 
 
@@ -549,22 +247,18 @@ class NetworkGenerator {
 					}
 				}
 			}
-			println "Clique on tag ${t} is "+smallNetwork;
+			log.info "Clique on tag ${t} is "+smallNetwork;
 			Network clique=generate(u,smallNetwork);
 			if(clique.isLarge()){
-				println "Clique is large";
+				log.info "Clique is large";
 				//clique=reduceNetwork(clique);
 			}
 			clique=improveNetwork(clique);
-			println("Network completed on tag ${t}: "+clique);
-			String cliqueJson=JsonOutput.toJson(clique);
-			println(cliqueJson);
-
+			log.info("Network completed on tag ${t}: "+clique);
 			similar.put(t,clique);
-
 		}
 
-		println similar;
+		log.info similar;
 
 		return similar;
 	}
@@ -580,7 +274,7 @@ class NetworkGenerator {
 			indexMap.put(it,count);
 			count++;
 		}
-		println "Constructed index map:"+indexMap;
+		log.info "Constructed index map:"+indexMap;
 
 		Network fullNetwork=new Network();
 		fullNetwork.addNode(new Node(name:u.weiboName,group:1));
@@ -590,9 +284,9 @@ class NetworkGenerator {
 				fullNetwork.addNode(new Node(name:it,group:1));
 				User v=User.find("from User as v where v.weiboName=?",[it]);
 				if(v!=null){
-					println v.weiboName+" is existing user.";
-					//recursively crawl out for user v
-					formNetwork(v);
+					log.debug v.weiboName+" is existing user.";
+					//recursively crawl out for user v, disabled in v1.2
+					//formNetwork(v);
 					HashSet<String> friends=getFriends(v);
 					friends.each{f->
 						//if(related.contains(f)||f==u.weiboName){
@@ -603,7 +297,7 @@ class NetworkGenerator {
 					}
 				}
 				else{
-					println v+" not found, cannot stretch further out.";
+					log.debug v+" not found, cannot stretch further out.";
 					fullNetwork.addLink(new Link(source:it,target:u.weiboName,value:1.0));
 				}
 			}
@@ -614,12 +308,15 @@ class NetworkGenerator {
 	}
 	public getFriends(User u){
 		HashSet<String> friends=new HashSet<>();
-		friends.addAll(u.forwarded);
-		friends.addAll(u.forwarding);
-		friends.addAll(u.commenting);
-		friends.addAll(u.commented);
-
-		println("friends of ${u.weiboName} are "+friends);
+		friends.addAll(u.forwarded?.keySet());
+		friends.addAll(u.forwarding?.keySet());
+		friends.addAll(u.commenting?.keySet());
+		friends.addAll(u.commented?.keySet());
+		friends.addAll(u.liked?.keySet());
+		friends.addAll(u.liking?.keySet());
+		friends.addAll(u.mentioned?.keySet());
+		friends.addAll(u.mentioning?.keySet());
+		log.info("friends of ${u.weiboName} are "+friends);
 		return friends;
 	}
 	public getFriendUsers(User u){
@@ -634,59 +331,8 @@ class NetworkGenerator {
 		}
 		return users;
 	}
-	public static class Node implements Comparable<Node>{
-		String name;
-		int group;
-
-		@Override
-		public String toString(){
-			return name;
-		}
-		@Override
-		public int hashCode(){
-			return name.hashCode();
-		}
-
-		@Override
-		public int compareTo(Node other){
-
-			return name.compareTo(other.name);
-		}
-	}
-	public static class Link{
-		String source;
-		String target;
-		float value;
-
-		@Override
-		public String toString(){
-			return "From ${source} to ${target}";
-		}
-		@Override
-		public int hashCode(){
-			return source.hashCode()+target.hashCode();
-		}
-	}
-	public static class Network{
-		TreeSet<Node> nodes;
-		HashSet<Link> links;
-		public Network(){
-			nodes=new HashSet<>();
-			links=new HashSet<>();
-		}
-		public void addNode(Node n){
-			nodes.add(n);
-		}
-
-		public void addLink(Link l){
-			links.add(l);
-
-		}
-		public boolean isLarge(){
-			return nodes.size()>100;
-		}
-	}
-	public static networkPagerank(Network network){
+	//handles undirected pagerank
+	public static Map networkPagerank(Network network){
 		//convert data format
 		Set<Node> nodes=new HashSet<>();
 		Set<Map> links=new HashSet<>();
@@ -696,10 +342,10 @@ class NetworkGenerator {
 		network.links.each{
 			links.add(['source':it.source,'target':it.target,'weight':1]);
 		}
-		println "${nodes.size()} nodes and ${links.size()} links passed to pagerank study";
+		log.info "${nodes.size()} nodes and ${links.size()} links passed to pagerank study";
 		//calculate pagerank
 		def pagerank=PageRankCalc.calculatePageRank(nodes,links,false);
-		println "Pagerank of network calculated:"+pagerank;
+		log.info "Pagerank of network calculated:"+pagerank;
 		return pagerank;
 	}
 	public static Network cleanUp(Network network){
@@ -735,7 +381,7 @@ class NetworkGenerator {
 		log.debug "Sorted on pagerank: "+pagerank;
 		//mark top 10% as important nodes
 		int remarkable=network.nodes.size()/10;
-		println "At most ${remarkable} nodes to mark as important.";
+		log.info "At most ${remarkable} nodes to mark as important.";
 		//first traverse to set the threshold
 		TreeMap<Double,Integer> valueMap=new TreeMap<>(Collections.reverseOrder());
 		for(def e:pagerank){
@@ -809,7 +455,7 @@ class NetworkGenerator {
 				newNetwork.addLink(l);
 		}
 
-		println "Reduced network "+newNetwork;
+		log.info "Reduced network "+newNetwork;
 		return newNetwork;
 	}
 }

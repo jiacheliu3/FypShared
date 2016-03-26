@@ -1,8 +1,10 @@
 package timeline
+import groovy.util.logging.Log4j
+
 import java.util.regex.Matcher
 import java.util.regex.Pattern
 
-
+@Log4j
 class DateExtractor {
 	static Pattern beforeMonth= Pattern.compile("^\\d{4}-\\d{2}-\\d{2} \\d{2}:\\d{2}");//2015-01-01 10:05
 	static Pattern withinHour=Pattern.compile("^\\d{1,2}\u5206\u949F\u524D");//27分钟前
@@ -52,11 +54,11 @@ class DateExtractor {
 				return d;
 
 			}else{
-				println "No hour and minute found from ${time}";
+				log.debug "No hour and minute found from ${time}";
 				return null;
 			}
 		}else{
-			println "${raw} doesn't match the date within month";
+			log.debug "${raw} doesn't match the date within month";
 			return null;
 		}
 	}
@@ -83,11 +85,11 @@ class DateExtractor {
 				return d;
 
 			}else{
-				println "No hour and minute found from ${time}";
+				log.debug "No hour and minute found from ${time}";
 				return null;
 			}
 		}else{
-			println "${raw} doesn't match the date within today";
+			log.debug "${raw} doesn't match the date within today";
 			return null;
 		}
 	}
@@ -114,11 +116,11 @@ class DateExtractor {
 				return d;
 
 			}else{
-				println "No hour and minute found from ${time}";
+				log.debug "No hour and minute found from ${time}";
 				return null;
 			}
 		}else{
-			println "${raw} doesn't match the date within yesterday";
+			log.debug "${raw} doesn't match the date within yesterday";
 			return null;
 		}
 	}
@@ -146,11 +148,11 @@ class DateExtractor {
 				return d;
 			}
 			else{
-				println "No minute found from ${raw}";
+				log.debug "No minute found from ${raw}";
 				return null;
 			}
 		}else{
-			println "${raw} doesn't match the date within hour";
+			log.debug "${raw} doesn't match the date within hour";
 			return null;
 		}
 	}
@@ -180,30 +182,30 @@ class DateExtractor {
 		Date d;
 		d=beforeMonthMatch(raw);
 		if(d!=null){
-			println "The date is more than a month from now.";
+			log.debug "The date is more than a month from now.";
 			return d;
 		}
 		d=withinMonthMatch(raw);
 		if(d!=null){
-			println "The date is within a month from now.";
+			log.debug "The date is within a month from now.";
 			return d;
 		}
 		d=withinYesterdayMatch(raw);
 		if(d!=null){
-			println "The date is within yesterday from now.";
+			log.debug "The date is within yesterday from now.";
 			return d;
 		}
 		d=withinTodayMatch(raw);
 		if(d!=null){
-			println "The date is within today from now.";
+			log.debug "The date is within today from now.";
 			return d;
 		}
 		d=withinHourMatch(raw);
 		if(d!=null){
-			println "The date is within an hour from now.";
+			log.debug "The date is within an hour from now.";
 			return d;
 		}
-		println "${raw} doesn't match any of the date format! Need to check!";
+		log.debug "${raw} doesn't match any of the date format! Need to check!";
 		return null;
 	}
 	public static Date getYesterday(){

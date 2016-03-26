@@ -1,12 +1,9 @@
 package segmentation
 
-import input.Patterns
-
-import java.util.regex.Matcher
-import java.util.regex.Pattern
-
+import groovy.util.logging.Log4j
 import keyword.KeywordFilter
 
+@Log4j
 class PythonCaller {
 	static String base="C:\\Users\\jiacheliu3\\git\\projects\\CodeBigBro\\";
 	static String pythonHome="C:\\Users\\jiacheliu3\\workspace\\CodeBigBroRelated"
@@ -24,11 +21,11 @@ class PythonCaller {
 		//jieba tfidf
 		Process proc1=Runtime.getRuntime().exec("python ${pythonHome}\\jiebaTFIDF.py ${input} ${outJiebaTFIDF}")
 		proc1.waitFor();
-		println "Finished jieba TFIDF"
+		log.debug "Finished jieba TFIDF"
 	}
 	//use jieba to segment sentences
 	public static ArrayList<String> pythonSeg(String content,long jobId){
-		println "Prepare to segment ${content}";
+		log.debug "Prepare to segment ${content}";
 
 		//generate file
 		String input=base+"temp\\${jobId}toSeg.txt";
@@ -39,7 +36,7 @@ class PythonCaller {
 		}
 		//pre-process the string
 		content=KeywordFilter.filterUrl(content);
-		
+
 		inFile.write(content,'utf-8');
 
 		String output=base+"temp\\${jobId}segResult.txt";
@@ -49,11 +46,11 @@ class PythonCaller {
 		//jieba
 		Process proc1=Runtime.getRuntime().exec("python ${pythonHome}\\jiebaSeg.py ${input} ${output}")
 		proc1.waitFor();
-		println "Finished jieba TFIDF"
+		log.debug "Finished jieba TFIDF"
 		//read the output
 		def results=[];
 		if(!outputFile.exists()){
-			println "File not found: ${output}";
+			log.error "File not found: ${output}";
 		}else{
 			outputFile.withReader("utf-8"){
 				String text=it.readLine();
@@ -67,12 +64,12 @@ class PythonCaller {
 		}
 		//filter useless characters
 		results=KeywordFilter.filterList(results);
-		
+
 		//clean up the file
 		if(inFile.delete()==false)
-			println "${input} file failed to delete";
+			log.error "${input} file failed to delete";
 		if(outputFile.delete()==false)
-			println "${output} file failed to delete";
+			log.error "${output} file failed to delete";
 		return results;
 
 	}
@@ -112,11 +109,10 @@ class PythonCaller {
 
 		//cleanup input file
 		if(inFile.delete()==false){
-			println "Failed to clean up input file.";
+			log.error "Failed to clean up input file.";
 		}
 
-
-		println "Keyword extraction task ${jobId} done with python script";
+		log.debug "Keyword extraction task ${jobId} done with python script";
 		//return snowResult.readLines();
 
 	}

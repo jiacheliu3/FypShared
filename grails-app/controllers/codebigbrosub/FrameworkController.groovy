@@ -312,5 +312,22 @@ class FrameworkController {
 		
 	}
 	def newGraphs={}
+	def stats={
+		User u=session["user"];
+		if(u!=null)
+			log.info "Successfully get user ${u}"
+		else{
+			log.info "User lost in the way..."
+			u=request["user"];
+			if(u==null)
+				log.info "Still get no user"
+		}
+	}
+	def bubble={}
+	def treeMap={}
 	
+	def directed={}
+	def interaction={}
+	def logging={}
+	def spottedTimelineTest={}
 }

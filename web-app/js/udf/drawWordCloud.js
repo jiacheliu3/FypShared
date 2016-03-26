@@ -1,3 +1,17 @@
+function wordCloudFormat(list,max,min){
+	console.log("The list before sort is");
+	console.log(list);
+	var map = scale(list,max,min);
+	console.log(map);
+	var arr = [];
+	for ( var e in map) {
+		//console.log(e, map[e]);
+		arr.push([ e, map[e] ]);
+	}
+	console.log("The map after transformation");
+	console.log(arr);
+	return arr;
+}
 //draw word cloud
 function convertRange(value, low, high) {
 	console.log("before" + value);
@@ -23,11 +37,13 @@ function sortObject(obj) {
 	// this to sort as strings
 	return arr; // returns array
 }
-function scale(array) {
+function scale(array,max) {
+	var max = typeof max !== 'undefined' ? max : 100;
+	var min = typeof min !== 'undefined' ? min : 30;
 	console.log("before scaling");
 	console.log(array);
-	var max = 100;
-	var min = 50;
+	//var max = 100;
+	console.log("The max value is "+max+", min is "+min);
 	var high = -1;
 	var low = 100000;
 	var newArray = {};
@@ -91,4 +107,32 @@ function processSimilarMap(obj) {
 
 		}
 	}
+}
+function drawWordCloud(data,zone){
+	console.log("Data for wordcloud is ");
+	console.log(data);
+	console.log("start drawing");
+	WordCloud(zone, {
+		list : data,
+		//weightFactor : 50,
+		rotateRatio : 0,
+		backgroundColor : '#ffffff',//ccccff before
+		color : function(word, weight) {
+			//console.log("word:" + word + " weight:" + weight);
+			if (weight == 50)
+				return '#99ccff';
+			else if (weight > 50 && weight < 75)
+				return '#9933ff';
+			else if (weight == 75)
+				return '#3399cc';
+			else if (weight > 75 && weight < 100)
+				return '#990033';
+			else if (weight == 100)
+				return '#cc0033';
+			else
+				return '#000000';
+
+		},
+	});
+	console.log("drawn");
 }

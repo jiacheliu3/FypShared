@@ -1,20 +1,17 @@
 package codebigbrosub
 
 import static grails.async.Promises.*
-
-import java.util.LinkedHashMap;
-
-
 import exceptions.UserNotFoundException
 import grails.converters.JSON
 import groovy.json.*
+import groovy.util.logging.Log4j
 import input.*
 import keyword.*
-import network.NetworkGenerator
+import network.Network
+import network.Network.Link
 import search.*
-import clustering.ClusterManager
+import toolkit.SessionChecker
 import crawler.UserWeiboCrawler
-import groovy.util.logging.Log4j
 
 @Log4j
 class EnvironmentController {
@@ -31,7 +28,8 @@ class EnvironmentController {
 	def readInput={
 	}
 	public static cleanUpSession(def session){
-		log.info "Clean up the session.";
+		log.info "Going to clean up the session.";
+		SessionChecker.printSession(session);
 		//clean up previous search information
 		session["user"]=null;
 		session["job"]=null;
@@ -39,22 +37,30 @@ class EnvironmentController {
 		session["wId"]=null;
 		session["wUrl"]=null;
 		session["keywords"]=null;
-		session["relations"]=null;
-		session["network"]=null;
+		session["stats"]=null;
+		//session["relations"]=null;
+		//session["network"]=null;
+		session["interactions"]=null;
 		session["clusters"]=null;
+		session["timeline"]=null;
 		session["crawler"]=null;
 		session["running"]=null;
 		session["jobId"]=null;
+		SessionChecker.printSession(session);
 
 	}
 	public static prepareRestudy(def session){
-
+		log.info "Going to clean up all existing study results for another round.";
+		SessionChecker.printSession(session);
 		session["keywords"]=null;
-		session["relations"]=null;
-		session["network"]=null;
+		session["stats"]=null;
+		//session["relations"]=null;
+		//session["network"]=null;
+		session["interactions"]=null;
 		session["clusters"]=null;
+		session["timeline"]=null;
 		session["crawler"]=null;
-		//deep crawl data is not cleared
+		SessionChecker.printSession(session);
 
 	}
 	//fork to two processes, one is just show start page, one is background process on user
@@ -65,11 +71,11 @@ class EnvironmentController {
 
 		//		WeiboManhuntThread hunt=new WeiboManhuntThread();
 		//		hunt.run();
-//		def p=task{ Reader.main(); }
-//
-//		p.onError { Throwable err -> println "An error occured ${err.message}" }
-//		p.onComplete { result -> println "Promise returned $result" }
-//		p.get();
+		//		def p=task{ Reader.main(); }
+		//
+		//		p.onError { Throwable err -> println "An error occured ${err.message}" }
+		//		p.onComplete { result -> println "Promise returned $result" }
+		//		p.get();
 
 	}
 	def beforeStart={
@@ -287,15 +293,15 @@ class EnvironmentController {
 				def result=[:];
 				int gotNow=job.updateCrawlStatus(data);
 				data["gotCount"]=gotNow;
-				
+
 				render (data as JSON);
-			
-				
+
+
 			}else{
 				render(status:200,text:'{}');
 			}
 
-			
+
 			return;
 		}catch(Exception e){
 			e.printStackTrace();
@@ -316,6 +322,9 @@ class EnvironmentController {
 
 			Job job=JobController.trackJob(jobId);
 			log.info "Retrieved job "+jobId+" in deep crawl.";
+			if(job==null){
+				render(status:200,text:'{}');
+			}
 			//check if started already
 			if(job.deepCrawlComplete==true){
 				log.info("Crawler already finished. No need for another crawl.");
@@ -326,6 +335,7 @@ class EnvironmentController {
 				render(status:200,text:'{}');
 				return;
 			}
+
 			//if not, start studying again
 			User u=session.getAttribute("user");
 			//session["user"]=null;
@@ -369,6 +379,8 @@ class EnvironmentController {
 			//check if the info already exists in session
 			def data=session["crawler"];
 			if(!(data==null||data=="")){
+				log.debug "The data is ";
+				log.debug data;
 				render data as JSON;
 				return;
 			}
@@ -377,11 +389,11 @@ class EnvironmentController {
 			Job job=JobController.trackJob(jobId);
 			log.debug "Retrieved job "+job;
 			//if crawling has already finished, no need for another round
-			if(job.crawlerComplete==true){
+			if(job.userCrawlComplete==true){
 				log.info("Crawler already finished. No need for another crawl.");
 				render(status:200,text:'{}');
 				return;
-			}else if(job.crawlerStarted==true){
+			}else if(job.userCrawlStarted==true){
 				log.info("Crawler has already started. Abort this one.");
 				render(status:200,text:'{}');
 				return;
@@ -412,91 +424,21 @@ class EnvironmentController {
 			//chain(action:asynchroRelation,params:[jobId:jobId])
 			//chain(action:asynchroNetwork,params:[jobId:jobId])
 			//chain(action:asynchroDeepCrawl,params:[jobId:jobId])
+
+			//chain(action:asynchroInteraction,params:[jobId:jobId])
+			//chain(action:asynchroTestStats,params:[jobId:jobId])
 		}catch(Exception e){
 			e.printStackTrace();
-			render(status:500);
-
+			render(status:500,text:e.message);
 		}
-	}
-	def asynchroNetwork={
-		try{
-			//check if the info already exists in session
-			def data=session["network"];
-			if(!(data==null||data=="")){
-				render data as JSON;
-				return;
-			}
-			//start of job, retrieve job from session
-			String jobId=session["jobId"];
-			Job job=JobController.trackJob(jobId);
-			log.debug "Retrieved job "+job+" in network";
-			//if the service already started
-			if(job.networkStarted){
-				log.info "Another network study request comes in while one is already in progress. Nothing to return in this request.";
-				render(status:200,text:'{}');
-				return;
-			}
-			//		if(!(job.keywordsComplete&&job.relationComplete)){
-			//			log.info "Keyword and relation not yet finished. Network study abort.";
-			//			return;
-			//		}
-			JobController.jobMaster(session,job,'network');
-			chain(action:asynchroClusters,params:params);
-		}catch(Exception e){
-			e.printStackTrace();
-			render(status:500);
-
-		}
-
-	}
-	public static void blockTillReady(def session){
-		boolean keywordsDone=session["keywordsComplete"];
-		boolean relationDone=session['relationComplete'];
-		while(!(keywordsDone&&relationDone)){
-			sleep(300);
-			keywordsDone=session["keywordsComplete"];
-			relationDone=session['relationComplete'];
-		}
-	}
-	def asynchroRelation={
-		try{
-			//check if the info already exists in session
-			def data=session["relations"];
-			if(!(data==null||data=="")){
-				log.info "Found existing data, proceed and return.";
-				render data as JSON;
-				return;
-			}
-			//start of job, retrieve job from session
-			String jobId=session["jobId"];
-			Job job=JobController.trackJob(jobId);
-			log.info "Retrieved job "+job+" in relation";
-			//if there's already another relation study, nothing to return for this
-			if(job.relationStarted){
-				render(status:200,text:'{}');
-				return;
-			}
-			if(!job.crawlerComplete){
-				println "Crawling not yet finished. Relation study abort.";
-				render(status:200,text:'{}');
-				return;
-			}
-
-			JobController.jobMaster(session,job,'relation');
-			chain(action:asynchroNetwork,params:params);
-			//chain(action:asynchroClusters,params:params);
-		}catch(Exception e){
-			e.printStackTrace();
-			render(status:500);
-
-		}
-
 	}
 	def asynchroKeywords={
 		try{
 			//check if the info already exists in session
 			def data=session["keywords"];
 			if(!(data==null||data=="")){
+				log.debug "The data is ";
+				log.debug data;
 				render data as JSON;
 				return;
 			}
@@ -510,29 +452,25 @@ class EnvironmentController {
 				return;
 			}
 			//println "Cluster job:"+job.crawlerComplete;
-			if(!job.crawlerComplete){
+			if(!job.userCrawlComplete){
 				log.info "Crawling not yet finished. Keyword study abort.";
 				render(status:200,text:'{}');
 				return;
 			}
 			JobController.jobMaster(session,job,"keyword");
-			//save status update
-			//		job.merge(flush:true);
-
-
-			chain(action:asynchroRelation,params:params);
+			chain(action:asynchroStats,params:params);
 		}catch(Exception e){
 			e.printStackTrace();
-			render(status:500);
+			render(status:500,text:e.message);
 
 		}
 
 
 	}
-	def asynchroClusters={
+	def asynchroStats={
 		try{
 			//check if the info already exists in session
-			def data=session["clusters"];
+			def data=session["stats"];
 			if(!(data==null||data=="")){
 				render data as JSON;
 				return;
@@ -543,28 +481,243 @@ class EnvironmentController {
 			Job job=JobController.trackJob(jobId);
 			log.info "Retrieved job "+job+" in cluster";
 
+			if(job?.statStarted){
+				log.info "Statistic study has already started. Abort this one.";
+				render(status:200,text:'{}');
+				return;
+			}
+			log.info "Stats study triggered.";
+			JobController.jobMaster(session,job,'stats');
+			
+
+			//redirect(controller:'framework',action:'account');
+			chain(action:asynchroInteraction,params:[jobId:jobId])
+		}catch(Exception e){
+			e.printStackTrace();
+			render(status:500);
+
+		}
+
+	}
+	//	def asynchroRelation={
+	//		try{
+	//			//check if the info already exists in session
+	//			def data=session["relations"];
+	//			if(!(data==null||data=="")){
+	//				log.debug "The data is ";
+	//				log.debug data;
+	//				render data as JSON;
+	//				return;
+	//			}
+	//			//start of job, retrieve job from session
+	//			String jobId=session["jobId"];
+	//			Job job=JobController.trackJob(jobId);
+	//			log.info "Retrieved job "+job+" in relation";
+	//			//if there's already another relation study, nothing to return for this
+	//			if(job.relationStarted){
+	//				render(status:200,text:'{}');
+	//				return;
+	//			}
+	//			if(!job.userCrawlComplete){
+	//				println "Crawling not yet finished. Relation study abort.";
+	//				render(status:200,text:'{}');
+	//				return;
+	//			}
+	//
+	//			JobController.jobMaster(session,job,'relation');
+	//			chain(action:asynchroStats,params:params);
+	//			//chain(action:asynchroNetwork,params:params);
+	//			//chain(action:asynchroClusters,params:params);
+	//		}catch(Exception e){
+	//			e.printStackTrace();
+	//			render(status:500);
+	//
+	//		}
+	//
+	//	}
+	//	def asynchroNetwork={
+	//		try{
+	//			//check if the info already exists in session
+	//			def data=session["network"];
+	//			if(!(data==null||data=="")){
+	//				log.debug "The data is ";
+	//				log.debug data;
+	//				render data as JSON;
+	//				return;
+	//			}
+	//			//start of job, retrieve job from session
+	//			String jobId=session["jobId"];
+	//			Job job=JobController.trackJob(jobId);
+	//			log.debug "Retrieved job "+job+" in network";
+	//			//if the service already started
+	//			if(job.networkStarted){
+	//				log.info "Another network study request comes in while one is already in progress. Nothing to return in this request.";
+	//				render(status:200,text:'{}');
+	//				return;
+	//			}
+	//			//		if(!(job.keywordsComplete&&job.relationComplete)){
+	//			//			log.info "Keyword and relation not yet finished. Network study abort.";
+	//			//			return;
+	//			//		}
+	//			JobController.jobMaster(session,job,'network');
+	//			//chain(action:asynchroClusters,params:params);
+	//			chain(action:asynchroTimeline,params:params);
+	//		}catch(Exception e){
+	//			e.printStackTrace();
+	//			render(status:500);
+	//
+	//		}
+	//
+	//	}
+	//merge relation and network to interaction
+	def asynchroInteraction={
+		try{
+			//check if the info already exists in session
+			def data=session["interactions"];
+			if(!(data==null||data=="")){
+				log.debug "The data is ";
+				log.debug data;
+				render data as JSON;
+				return;
+			}
+			//start of job, retrieve job from session
+			String jobId=session["jobId"];
+			Job job=JobController.trackJob(jobId);
+			log.info "Retrieved job "+job+" in interaction";
+			//if there's already another relation study, nothing to return for this
+			if(job.interactionStarted){
+				log.info "Interaction study already started. No need to start another one.";
+				render(status:200,text:'{}');
+				return;
+			}
+			if(!job.statComplete){
+				log.info "Stat study not yet finished. Interaction study abort.";
+				render(status:200,text:'{}');
+				return;
+			}
+
+			JobController.jobMaster(session,job,'interaction');
+			log.info "Interaction study is complete.";
+
+
+			chain(action:asynchroClusters,params:[jobId:jobId])
+		}catch(Exception e){
+			log.error "An error occurred in interaction study.";
+			e.printStackTrace();
+			render(status:500,text:e.message);
+		}
+	}
+	def asynchroClusters={
+		try{
+			//check if the info already exists in session
+			def data=session["clusters"];
+			if(!(data==null||data=="")){
+				log.debug "The data is ";
+				log.debug data;
+				render data as JSON;
+				return;
+			}
+
+			//start of job, retrieve job from session
+			String jobId=session["jobId"];
+			Job job=JobController.trackJob(jobId);
+			log.info "Retrieved job "+job+" in cluster";
+			if(job==null){
+				log.info "No job fetched.";
+				render(status:200,text:'{}');
+				return;
+			}
+
 			if(job.clusterStarted){
 				log.info "Cluster study has already started. Abort this one.";
 				render(status:200,text:'{}');
 				return;
 			}
-			if(!job.networkComplete){
-				log.info "Network not yet finished. Cluster study abort.";
-				render(status:200,text:'{}');
-				return;
-			}
+//			if(!job.interactionComplete){
+//				log.info "Network not yet finished. Cluster study abort.";
+//				render(status:200,text:'{}');
+//				return;
+//			}
 
 			JobController.jobMaster(session,job,'cluster');
-
-			redirect(controller:'framework',action:'account');
-			//chain(action:asynchroDeepCrawl,params:params);
+			chain(action:asynchroTimeline,params:params);
 		}catch(Exception e){
 			e.printStackTrace();
 			render(status:500);
 
 		}
 	}
+	def asynchroTimeline={
+		try{
+			//check if the info already exists in session
+			def data=session["timeline"];
+			if(!(data==null||data=="")){
+				render data as JSON;
+				return;
+			}
+			//start of job, retrieve job from session
+			String jobId=session["jobId"];
+			Job job=JobController.trackJob(jobId);
+			log.info "Retrieved job "+job+" in cluster";
+			if(job.timelineStarted){
+				log.info "Timeline study has already started. Abort this one.";
+				render(status:200,text:'{}');
+				return;
+			}
+			if(!job.clusterComplete){
+				log.info "Cluster study not yet finished. Timeline study abort.";
+				render(status:200,text:'{}');
+				return;
+			}
+			log.info "Timeline triggered.";
+			JobController.jobMaster(session,job,'timeline');
 
+			redirect(controller:'framework',action:'account');
+
+		}catch(Exception e){
+			e.printStackTrace();
+			render(status:500);
+		}
+	}
+	/* Dedicated for geographical info */
+	def asynchroMap={
+		def l=[];
+		log.info "Requesting map info";
+		String jsonRaw='[["Gansu", 48], ["Qinghai", 47], ["Guangxi", 45], ["Guizhou", 35], ["Chongqing", 34], ["Beijing", 12], ["Fujian", 35], ["Anhui", 6], ["Guangdong", 40], ["Xizang", 3], ["Xinjiang", 12], ["Hainan", 21], ["Ningxia", 8], ["Shaanxi", 40], ["Shanxi", 11], ["Hubei", 1], ["Hunan", 23], ["Sichuan", 19], ["Yunnan", 19], ["Hebei", 34], ["Henan", 20], ["Liaoning", 14], ["Shandong", 0], ["Tianjin", 12], ["Jiangxi", 20], ["Jiangsu", 37], ["Shanghai", 34], ["Zhejiang", 46], ["Jilin", 38], ["Inner Mongol", 10], ["Heilongjiang", 20], ["Taiwan", 45], ["Xianggang", 35], ["Macau", 10]]';
+		render(status:200,text:jsonRaw);
+	}
+	/* Added in v1.2 sending local json data to external */
+	def asynchroMainlandData={
+		String content=FileVisitor.readFileContent('maps/zh-mainland-provinces.topo.json');
+		if(content==""){
+			log.error "Unable to get map data!";
+		}else{
+			log.info "Read data from map in json";
+			render(status:200,text:content);
+
+		}
+	}
+	def asynchroTaiwanData={
+		String content=FileVisitor.readFileContent('maps/zh-chn-twn.topo.json');
+		if(content==""){
+			log.error "Unable to get map data!";
+		}else{
+			log.info "Read data from map in json";
+			render(status:200,text:content);
+
+		}
+	}
+	def asynchroMacauData={
+		String content=FileVisitor.readFileContent('maps/zh-hkg-mac.topo.json');
+		if(content==""){
+			log.error "Unable to get map data!";
+		}else{
+			log.info "Read data from map in json";
+			render(status:200,text:content);
+
+		}
+	}
+	/* wrapper classes */
 	public static class NodeWrapper{
 		def match;
 		def name;
@@ -587,7 +740,7 @@ class EnvironmentController {
 			target=t;
 		}
 	}
-
+	/* test zone */
 	def coffee={}
 	def graph={
 		def inputFile = new File("D:\\graph.json");
@@ -628,42 +781,6 @@ class EnvironmentController {
 		def x=5.0/0.0;
 		render x as JSON;
 	}
-	def asynchroTimeline={
-		try{
-			//check if the info already exists in session
-			def data=session["timeline"];
-			if(!(data==null||data=="")){
-				render data as JSON;
-				return;
-			}
-
-			//start of job, retrieve job from session
-			String jobId=session["jobId"];
-			Job job=JobController.trackJob(jobId);
-			log.info "Retrieved job "+job+" in cluster";
-//
-//			if(job.clusterStarted){
-//				log.info "Cluster study has already started. Abort this one.";
-//				render(status:200,text:'{}');
-//				return;
-//			}
-//			if(!job.networkComplete){
-//				log.info "Network not yet finished. Cluster study abort.";
-//				render(status:200,text:'{}');
-//				return;
-//			}
-
-			JobController.jobMaster(session,job,'timeline');
-			log.info "Timeline triggered.";
-			
-		}catch(Exception e){
-			e.printStackTrace();
-			render(status:500);
-
-		}
-		
-		
-	}
 	def asynchroTopics={
 		try{
 			//check if the info already exists in session
@@ -681,6 +798,207 @@ class EnvironmentController {
 			render(status:500);
 
 		}
-		
+
+	}
+	def asynchroTestStats={
+		log.info "Got request for stats. Use test info";
+		def gender;
+		def age;
+		def geo;
+		def tags;
+		def edu;
+		def work;
+		def authCount;
+		def authList;
+		def introKeywords;
+		def longestIntro;
+		def introUser;
+		def allCount;
+
+		gender=["male":50,"female":20,"unknown":5];
+		age=["known":[20, 31, 15, 14, 16, 16, 18, 20, 25, 60, 72, 50, 44, 42, 10, 5, 22, 35, 34, 32, 25, 40, 39, 20, 22],"unknown":40];
+		geo=["known":[["Gansu", 48], ["Qinghai", 47], ["Guangxi", 45], ["Guizhou", 35], ["Chongqing", 34], ["Beijing", 12], ["Fujian", 35], ["Anhui", 6], ["Guangdong", 40], ["Xizang", 3], ["Xinjiang", 12], ["Hainan", 21], ["Ningxia", 8], ["Shaanxi", 40], ["Shanxi", 11], ["Hubei", 1], ["Hunan", 23], ["Sichuan", 19], ["Yunnan", 19], ["Hebei", 34], ["Henan", 20], ["Liaoning", 14], ["Shandong", 0], ["Tianjin", 12], ["Jiangxi", 20], ["Jiangsu", 37], ["Shanghai", 34], ["Zhejiang", 46], ["Jilin", 38], ["Inner Mongol", 10], ["Heilongjiang", 20], ["Taiwan", 45], ["Xianggang", 35], ["Macau", 10]],"unknown":[:]];
+		tags=["青年律师 ":2,"律师":3,"心理学":1, "社会 ":1,"创业":5,"二次元":1,"美国留学":6,"留学":8,"学习":3,"NBA":15,"英超":2,"球迷":10,"读书":6];
+		edu=["unknown":30,"北京大学":12,"重庆文理学院":1,"南京大学":2,"北京师范大学":5,"平顶山教育学院":1,"叶县一高":2,"郑州科技学院":1,"西藏藏医学院":1,"兰州医学院":1,"兰州六中":5,"杂多民族中学":1,"法一小学":3];
+		work=["重庆市协和心理顾问事务所":5,"北京东城访爷无限责任公司":1,"unknown":120,"南昌理工学院":1];
+		longestIntro=["content":"胸怀正义 敢于执言 维护公平 创建和谐 新浪微博社区委员会专家成员","user":"Alala"];
+		introKeywords=["足以":0.989, "关注":0.989, "研修":0.989, "传人":0.989, "院长":0.989, "百姓":0.989, "简易房":0.989, "中国":0.989, "执言":0.989, "专家":0.506, "汽车":0.506, "敢于":0.506, "创造":0.506, "心理":0.506, "维护":0.506, "公平":0.506, "网站":0.506, "空白":0.506];
+		introUser="Atwatere";
+		authCount=15;
+		allCount=100;
+
+		def intro=["introKeyword":introKeywords,"introLong":longestIntro,"introUser":introUser];
+		def auth=["authKeyword":introKeywords,"authLong":longestIntro,"authUser":introUser,"authCount":authCount];
+
+
+		//forge data
+		def result=['all':allCount,'gender':gender,'age':age,'geo':geo,'tag':tags,'edu':edu,'work':work,'auth':auth,'intro':intro];
+
+
+		render result as JSON;
+	}
+	def asynchroTestNetwork={
+		//make networks and find cliques
+		def rawLinks1="""[
+  {
+    "source": "P1",
+    "target": "P2",
+    "value": 1
+  },
+  {
+    "source": "P1",
+    "target": "P3",
+    "value": 1
+  },
+  {
+    "source": "P1",
+    "target": "P4",
+    "value": 1
+  },
+  {
+    "source": "P2",
+    "target": "P1",
+    "value": 1
+  },
+  {
+    "source": "P2",
+    "target": "P3",
+    "value": 1
+  },
+  {
+    "source": "P2",
+    "target": "P4",
+    "value": 1
+  },
+  {
+    "source": "P2",
+    "target": "P7",
+    "value": 1
+  },
+  {
+    "source": "P3",
+    "target": "P2",
+    "value": 1
+  },
+  {
+    "source": "P3",
+    "target": "P4",
+    "value": 1
+  },
+  {
+    "source": "P4",
+    "target": "P1",
+    "value": 1
+  },
+  {
+    "source": "P4",
+    "target": "P2",
+    "value": 1
+  },
+  {
+    "source": "P4",
+    "target": "P3",
+    "value": 1
+  },
+  {
+    "source": "P4",
+    "target": "P6",
+    "value": 1
+  },
+  {
+    "source": "P5",
+    "target": "P6",
+    "value": 1
+  },
+  {
+    "source": "P5",
+    "target": "P7",
+    "value": 1
+  },
+  {
+    "source": "P5",
+    "target": "P8",
+    "value": 1
+  },
+  {
+    "source": "P6",
+    "target": "P2",
+    "value": 1
+  },
+  {
+    "source": "P6",
+    "target": "P5",
+    "value": 1
+  },
+  {
+    "source": "P6",
+    "target": "P7",
+    "value": 1
+  },
+  {
+    "source": "P7",
+    "target": "P5",
+    "value": 1
+  },
+  {
+    "source": "P7",
+    "target": "P6",
+    "value": 1
+  },
+  {
+    "source": "P8",
+    "target": "P5",
+    "value": 1
+  },
+  {
+    "source": "P8",
+    "target": "P9",
+    "value": 1
+  },
+  {
+    "source": "P9",
+    "target": "P8",
+    "value": 1
+  }
+]""";
+		def links1=JSON.parse(rawLinks1);
+		def nodes1=new ArrayList<String>();
+		nodes1.addAll(["P1", "P2", "P3", "P5", "P4", "P6", "P7", "P8", "P9"]);
+		Network n1=new Network();
+		nodes1.each{name->
+			Node n=new Node(name:name,group:1);
+			n1.addNode(n);
+		}
+		links1.each{
+			Link l=new Link(source:it.source,target:it.target,value:it.value);
+			n1.addLink(l);
+		}
+		log.info "The sample network is ${n1} and IMA find cliques outta it.";
+		def map=[:];
+		map.put("full",n1);
+		map.put("simple",n1);
+		render map as JSON;
+	}
+	def asynchroTestRelation={
+	}
+	def asynchroLog={
+		try{
+			//start of job, retrieve job from session
+			String jobId=session["jobId"];
+			Job job=JobController.trackJob(jobId);
+			log.info "Retrieved job "+job+" in cluster";
+			if(job==null){
+				log.error "No job found in log retrieval.";
+				render(status:500,text:"");
+				return;
+			}
+			//get the log file based on job id
+			List theLogs=job.getLog();
+			
+			render theLogs as JSON;
+		}catch(Exception e){
+			e.printStackTrace();
+			render(status:500,text:e.message);
+		}
 	}
 }

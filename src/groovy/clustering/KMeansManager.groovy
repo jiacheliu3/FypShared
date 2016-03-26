@@ -1,15 +1,17 @@
 package clustering
 
+import groovy.util.logging.Log4j
 
+@Log4j
 class KMeansManager {
 	private boolean compareArrays(double[] a, double[] b){
 		if(a.length!=b.length){
-			println "Two arrays have different length. A has ${a.length} while B has ${b.length}!"
+			log.error "Two arrays have different length. A has ${a.length} while B has ${b.length}!"
 			return false;
 		}else{
 			for(int i=0;i<a.length;i++){
 				if(a[i]!=b[i]){
-					println "Mismatch at ${i}th value.";
+					log.error "Mismatch at ${i}th value.";
 					return false
 				}
 			}
@@ -18,13 +20,12 @@ class KMeansManager {
 	}
 	public double distanceBetween(List<Double> vector1,List<Double> vector2){
 		if(vector1==null){
-			println "How come vector is null?!";
-			println "${vector1},${vector2}";
+			log.error "How come vector is null:${vector1},${vector2}";
 		}
 		double[] vec1=vector1 as double[];
 		double[] vec2=vector2 as double[];
 		if(vec1.length!=vec2.length){
-			println "Two vectors have different length! Vector 1 has ${vec1.length} dimensions while vector 2 has ${vec2.length}.";
+			log.error "Two vectors have different length! Vector 1 has ${vec1.length} dimensions while vector 2 has ${vec2.length}.";
 			return 1000;
 		}
 		double sum;
@@ -35,7 +36,7 @@ class KMeansManager {
 		return Math.sqrt(sum);
 	}
 	public ArrayList<ArrayList<Double>> calculateCentroids(def clusters){
-		println "Calculate centroids of cluster ${clusters.class}: ${clusters}";
+		log.debug "Calculate centroids of cluster ${clusters.class}: ${clusters}";
 		ArrayList<ArrayList<Double>> centroids=new ArrayList<>();
 		clusters.each{
 			centroids.add(findCentroid(it));
@@ -45,7 +46,7 @@ class KMeansManager {
 	private List<Double> findCentroid(def list){
 		int siz=list.size();
 		if(siz==0){
-			println "No vectors in this cluster at all";
+			log.error "No vectors in this cluster at all";
 			return ;
 		}
 		double[] sum=new double[list[0].size()];
@@ -59,17 +60,17 @@ class KMeansManager {
 		for(int j=0;j<list[0].size;j++){
 			sum[j]/=siz;
 		}
-		println "New centroid is ${sum}";
+		log.debug "New centroid is ${sum}";
 		return sum as ArrayList<Double>;
 	}
 	public List<Double> findClosestCentroid(List<Double> vector,List<List<Double>> centroids){
 		if(centroids==null||centroids.size()==0){
-			println "No centroids passed to findClosestCentroid()!";
-			println "The centroids are ${centroids} and vector is ${vector}."
+			log.error "No centroids passed to findClosestCentroid()!";
+			log.debug "The centroids are ${centroids} and vector is ${vector}."
 		}
 		if(vector==null){
-			println "No vector passed to findClosestCentroid()!";
-			println "The centroids are ${centroids} and vector is ${vector}."
+			log.error "No vector passed to findClosestCentroid()!";
+			log.debug "The centroids are ${centroids} and vector is ${vector}."
 		}
 		double dist=Double.MAX_VALUE;
 		def closest;
@@ -97,14 +98,14 @@ class KMeansManager {
 			def v=e.key;
 			closestDist[v]=e.value/sum;
 		}
-		println "Assigned probability for each vector: "+closestDist;
+		log.debug "Assigned probability for each vector: "+closestDist;
 		return closestDist;
 
 	}
 	public List<Double> findNextCentroid(def prob,double num){
-		println "Finding next centroid for random number ${num}";
+		log.debug "Finding next centroid for random number ${num}";
 		if(num>1){
-			println "Impossible to find a vector with random number ${num}";
+			log.debug "Impossible to find a vector with random number ${num}";
 			return null;
 		}
 		def centroid;
@@ -119,8 +120,8 @@ class KMeansManager {
 			}
 		}
 		if(centroid==null){
-			println "Why the centroid is not initialized? Check the probability.";
-			println prob;
+			log.debug "Why the centroid is not initialized? Check the probability.";
+			log.debug prob;
 			Random r=new Random();
 			double n=r.nextDouble();
 			return findNextCentroid(prob,n);
@@ -135,7 +136,7 @@ class KMeansManager {
 		int max=vectors.size()-1;
 		int randomNumber = random.nextInt(max);
 		List<Double> firstCentroid=vectors[randomNumber];
-		println "Got the 1st centroid:"+firstCentroid;
+		log.debug "Got the 1st centroid:"+firstCentroid;
 		centroids.add(firstCentroid);
 
 		while(centroids.size()<k){
@@ -153,9 +154,8 @@ class KMeansManager {
 	}
 	//assign each cluster to centroid and calculate new centroids
 	public Map<List,List> calculateMapping(List<List<Double>> centroids,List<List<Double>> vectors){
-		println "Mapping ${vectors.size()} to ${centroids.size()} centroids.";
-		println "Mapping ${vectors} to ${centroids}";
-		
+		log.debug "Mapping ${vectors.size()} to ${centroids.size()} centroids.";
+		log.debug "Mapping ${vectors} to ${centroids}";
 		
 		def mapping=[:];
 		//initialize the mapping
@@ -168,8 +168,8 @@ class KMeansManager {
 			def centroid=findClosestCentroid(vector,centroids);
 			mapping[centroid].add(vector);
 		}
-		println "Finished point assignment, the mapping is: ";
-		println mapping;
+		log.debug "Finished point assignment, the mapping is: ";
+		log.debug mapping;
 		//calculate new centroids
 		def newMapping=[:];
 		mapping.each{centroid,group->
@@ -199,7 +199,7 @@ class KMeansManager {
 		//decide k value
 		int siz=vectors.size();
 		int k=Math.ceil(siz/40);
-		println "Arbitrarily choose k value as ${k}.";
+		log.debug "Arbitrarily choose k value as ${k}.";
 		return kmeansPlus(vectors,k);
 	}
 	//calculate k means clustering of a list of vectors
@@ -215,7 +215,7 @@ class KMeansManager {
 			def newCentroids=mapping.keySet();
 			//check if converged
 			converged=compareCentroids(centroids,newCentroids);
-			println "${counter}th iteration. Converged: ${converged}";
+			log.debug "${counter}th iteration. Converged: ${converged}";
 			//store the new centroids
 			centroids.size=0
 			centroids.addAll(newCentroids);

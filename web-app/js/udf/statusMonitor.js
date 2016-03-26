@@ -15,7 +15,8 @@ function sayNothing(job) {
 	//updateButton(action, pseudoZone, realZone, label);
 	//updateLink(action,link,label);
 	updateCircle(action,link,label);
-	updateZone(action, zone);
+	//updateZone(action, zone);
+	updateBriefStatus(action, zone);
 	return false;
 
 }
@@ -54,15 +55,21 @@ function asynchroMonitor() {
 						console.log(status);
 						var crawlerStarted = status["crawlStarted"];
 						var keywordsStarted = status["keywordsStarted"];
-						var relationStarted = status["relationStarted"];
-						var networkStarted = status["networkStarted"];
+						var statStarted=status["statStarted"];
+						//var relationStarted = status["relationStarted"];
+						//var networkStarted = status["networkStarted"];
+						var interactionStarted=status["interactionStarted"];
+						var timelineStarted=status["timelineStarted"];
 						var clusterStarted = status["clusterStarted"];
 						var deepCrawlStarted = status["deepCrawlStarted"];
 
 						var crawlerComplete = status["crawlComplete"];
 						var keywordsComplete = status["keywordsComplete"];
-						var relationComplete = status["relationComplete"];
-						var networkComplete = status["networkComplete"];
+						var statComplete=status["statComplete"];
+						//var relationComplete = status["relationComplete"];
+						//var networkComplete = status["networkComplete"];
+						var interactionComplete=status["interactionComplete"];
+						var timelineComplete=status["timelineComplete"];
 						var clusterComplete = status["clusterComplete"];
 						var deepCrawlComplete = status["deepCrawlComplete"];
 
@@ -80,7 +87,7 @@ function asynchroMonitor() {
 							var crawlerPanel = document
 									.getElementById("crawlerStatus");
 							if (crawlerPanel) {
-								crawlerPanel.className = "alert alert-success udf-success";
+								crawlerPanel.className = "code-success";
 								crawlerPanel.innerHTML = "Complete";
 							}
 						}
@@ -98,8 +105,11 @@ function asynchroMonitor() {
 						// as nothing to show
 						if (nothingToShow == true || nothingToShow == 'true') {
 							sayNothing('keyword');
-							sayNothing('relation');
-							sayNothing('network');
+							sayNothing('stat');
+							//sayNothing('relation');
+							//sayNothing('network');
+							sayNothing('interaction');
+							sayNothing('timeline');
 							sayNothing('cluster');
 							console.log("All jobs marked as nothing to study.");
 							return;
@@ -128,29 +138,46 @@ function asynchroMonitor() {
 								keywordNoticeSent = true;
 							}
 						}
-						if (react('relation', relationStarted, relationComplete)) {
-							// asynchroRelation();
+						if (react('stat', statStarted, statComplete)) {
+							// asynchroCluster();
 						} else {
-							if (isTrue(relationComplete)
-									&& relationNoticeSent == false) {
-								sendCompleteNotice('relation');
-								relationNoticeSent = true;
+							if (isTrue(statComplete)
+									&& statNoticeSent == false) {
+								sendCompleteNotice('stat');
+								statNoticeSent = true;
+							}
+
+						}
+//						if (react('relation', relationStarted, relationComplete)) {
+//							// asynchroRelation();
+//						} else {
+//							if (isTrue(relationComplete)
+//									&& relationNoticeSent == false) {
+//								sendCompleteNotice('relation');
+//								relationNoticeSent = true;
+//							}
+//						}
+//
+//						if (react('network', networkStarted, networkComplete,
+//								keywordsComplete, relationComplete)) {
+//							// asynchroNetwork();
+//						} else {
+//							if (isTrue(networkComplete)
+//									&& networkNoticeSent == false) {
+//								sendCompleteNotice('network');
+//								networkNoticeSent = true;
+//							}
+//						}
+						if (react('interaction', interactionStarted, interactionComplete)) {
+							// asynchroCluster();
+						} else {
+							if (isTrue(interactionComplete)
+									&& interactionNoticeSent == false) {
+								sendCompleteNotice('interaction');
+								interactionNoticeSent = true;
 							}
 						}
-
-						if (react('network', networkStarted, networkComplete,
-								keywordsComplete, relationComplete)) {
-							// asynchroNetwork();
-						} else {
-							if (isTrue(networkComplete)
-									&& networkNoticeSent == false) {
-								sendCompleteNotice('network');
-								networkNoticeSent = true;
-							}
-						}
-
-						if (react('cluster', clusterStarted, clusterComplete,
-								networkComplete)) {
+						if (react('cluster', clusterStarted, clusterComplete)) {
 							// asynchroCluster();
 						} else {
 							if (isTrue(clusterComplete)
@@ -160,6 +187,16 @@ function asynchroMonitor() {
 							}
 
 						}
+						if (react('timeline', timelineStarted, timelineComplete)) {
+							// asynchroCluster();
+						} else {
+							if (isTrue(timelineComplete)
+									&& timelineNoticeSent == false) {
+								sendCompleteNotice('timeline');
+								timelineNoticeSent = true;
+							}
+						}
+						
 
 					});
 }
@@ -188,7 +225,8 @@ function updateStatus(jobName) {
 		action = 1;
 		//updateLink(action,link,label);
 		updateCircle(action,link,label);
-		updateZone(action, zone);
+		//updateZone(action, zone);
+		updateBriefStatus(action, zone);
 
 		return false;
 	} else if (isTrue(start)) {
@@ -196,7 +234,8 @@ function updateStatus(jobName) {
 		action = 2;
 		//updateLink(action,link,label);
 		updateCircle(action,link,label);
-		updateZone(action, zone);
+		//updateZone(action, zone);
+		updateBriefStatus(action, zone);
 		return false;
 	} else {
 
@@ -217,7 +256,8 @@ function updateStatus(jobName) {
 		//updateLink(action,link,label);
 		
 		//updateCircle(action,link,label); //No need to update the circle for it's already in the right color
-		updateZone(action, zone);
+		//updateZone(action, zone);
+		updateBriefStatus(action, zone);
 		return togo;
 	}
 }
@@ -246,22 +286,21 @@ function react() {
 		action = 1;
 		//updateLink(action,link,label);
 		updateCircle(action,link,label);
-		updateZone(action, zone);
-
+		//updateZone(action, zone);
+		updateBriefStatus(action, zone);
 		return false;
 	} else if (isTrue(start)) {
 		// set the button color
 		action = 2;
 		//updateLink(action,link,label);
 		updateCircle(action,link,label);
-		updateZone(action, zone);
+		//updateZone(action, zone);
+		updateBriefStatus(action, zone);
 		return false;
 	} else {
 
 		// disable the button
-
 		action = 3;
-
 		// check pre-requisites
 		var length = arguments.length;
 		var togo = true;
@@ -274,7 +313,8 @@ function react() {
 		//updateButton(action, pseudoZone, realZone, label);
 		//updateLink(action,link,label);
 		updateCircle(action,link,label);
-		updateZone(action, zone);
+		//updateZone(action, zone);
+		updateBriefStatus(action, zone);
 		return togo;
 	}
 }
@@ -284,6 +324,29 @@ function isTrue(value) {
 	else
 		return false;
 }
+function updateBriefStatus(index,zone){
+	// console.log("action is:"+index);
+	if (zone == null) {
+		// console.log("Zone is null.");
+		return;
+	}
+	if (index == 3) {// not started
+		zone.innerHTML = "Not Started.";
+		zone.className = "code-danger";
+	} else if (index == 2) {// started yet not finished
+		zone.innerHTML = "In progress.";
+		zone.className = "code-warning";
+	} else if (index == 1) {// complete
+		zone.innerHTML = "Complete.";
+		zone.className = "code-success";
+	} else if (index == 4) {
+		zone.innerHTML = "No data.";
+		zone.className = "code-info";
+	} else {
+		console.log("what's wrong with the zone, action index is: "+index);
+	}
+}
+/* Deprecated */
 // update the zone in account page only
 function updateZone(index, zone) {
 	// console.log("action is:"+index);
@@ -307,6 +370,7 @@ function updateZone(index, zone) {
 		console.log("what's wrong with the zone");
 	}
 }
+
 // use little buckles for task status
 function updateCircle(index,link,label){
 	// console.log("action is:"+index);
@@ -338,6 +402,7 @@ function updateCircle(index,link,label){
 		console.log("what's wrong");
 	}
 }
+/* Deprecated */
 // update the link to show status
 function updateLink(index, link, label) {
 	// console.log("action is:"+index);
@@ -369,6 +434,7 @@ function updateLink(index, link, label) {
 		console.log("what's wrong");
 	}
 }
+/* Deprecated */
 // control the buttons in nav bar
 function updateButton(index, pseudo, real, label) {
 	// console.log("action is:"+index);

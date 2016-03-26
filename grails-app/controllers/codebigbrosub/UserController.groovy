@@ -9,4 +9,7 @@ import grails.transaction.Transactional
 class UserController {
 
   def scaffold=true;
+  def oneShot={
+	  User.main();
+  }
 }

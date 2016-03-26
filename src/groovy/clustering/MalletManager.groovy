@@ -14,6 +14,7 @@ import cc.mallet.types.Instance
 import cc.mallet.types.InstanceList
 import cc.mallet.types.NormalizedDotProductMetric
 import cc.mallet.types.SparseVector
+import codebigbrosub.Job
 
 @Log4j
 class MalletManager {
@@ -24,7 +25,12 @@ class MalletManager {
 
 	ArrayList<SparseVector> centroids;
 	Clustering clustering;
-	public MalletManager(){init();}
+
+	Job job;//store a reference for the sake of logging
+	public MalletManager(Job job){
+		this.job=job;
+		init();
+	}
 
 	public static Pipe buildPipe() {
 		ArrayList<Pipe> pipeList = new ArrayList<>();
@@ -60,13 +66,13 @@ class MalletManager {
 		} catch (Exception e) {
 			log.error(e);
 		}
-		
+
 	}
 
 	public  kmeans(){
 		//report existing data set
 		log.debug instances;
-		
+
 		//integrity check on dataset
 		if(instances.size()==0){
 			log.info "No data to cluster";
@@ -78,12 +84,12 @@ class MalletManager {
 		}
 		//decide the number of k
 		int siz=instances.size();
-//		double l=Math.log10(siz);
-//		int k;
-//		if(l<2)
-//			k=2;
-//		else
-//			k=Math.ceil(l);
+		//		double l=Math.log10(siz);
+		//		int k;
+		//		if(l<2)
+		//			k=2;
+		//		else
+		//			k=Math.ceil(l);
 		int k=Math.ceil(siz/40);
 		int minK=Math.ceil(siz/60);
 		log.info "Target cluster size: "+k+",smallest expected size: "+minK;
@@ -93,8 +99,8 @@ class MalletManager {
 
 		KMeans kkk=new KMeans(new Noop(), k, new NormalizedDotProductMetric());
 		def clusterReg=kkk.cluster(instances);
-		
-		
+
+
 		//have a try auto decrease number of clusters
 		while(clusterReg==null&&k>minK){
 			log.info "Decrease number of clusters.";
@@ -103,9 +109,9 @@ class MalletManager {
 			kkk=new KMeans(new Noop(), k, new NormalizedDotProductMetric());
 			clusterReg=kkk.cluster(instances);
 		}
-		
+
 		clustering=clusterReg;
-		
+
 		def mmm=kkk.getClusterMeans();
 		boolean needManualAssignment;
 		if(mmm==null){
@@ -129,7 +135,7 @@ class MalletManager {
 		else{
 			log.debug "Clustering got: "+clustering;
 		}
-		
+
 
 		return centroids;
 	}
@@ -168,7 +174,7 @@ class MalletManager {
 				//get data from both
 				def vectDataReg=vect.getData();
 				double[] centData=cent.getValues();
-				double[] vectData=vectDataReg.getValues();				
+				double[] vectData=vectDataReg.getValues();
 				double dist=vectorDistance(vectData,centData);
 				if(dist<minDist){
 					assignments[i]=j;
@@ -178,14 +184,14 @@ class MalletManager {
 		}
 		log.debug "Final assignments are "+assignments;
 		return assignments;
-		
+
 	}
 	public void debriefInstances(){
 		instances.each{inst->
 			def data=inst.getData();
 			double[] d=data.getValues();
-			println "Instance has "+d;
-			
+			log.debug "Instance has "+d;
+
 		}
 	}
 	public double vectorDistance(double[] vect1,double[] vect2){
@@ -225,8 +231,8 @@ class MalletManager {
 		for(int i=0;i<1000;i++){
 			mm.addData(mm.anotherDoubleList(10));
 		}
-		
-		
+
+
 		int k=10;
 		KMeans kkk=new KMeans(new Noop(), k, new NormalizedDotProductMetric());
 		def clusterReg=kkk.cluster(mm.instances);

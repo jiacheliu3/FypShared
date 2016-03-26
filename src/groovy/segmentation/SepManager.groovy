@@ -48,7 +48,7 @@ class SepManager {
 		long result=jobIndex;
 		jobIndex++;
 		if(jobIndex>=10000){
-			println "Hit 10000 for separation manager. Clear the number and start again.";
+			log.debug "Hit 10000 for separation manager. Clear the number and start again.";
 			jobIndex=0;
 		}
 		return result;
@@ -70,7 +70,7 @@ class SepManager {
 			uselessWords.add(it);
 		}
 
-		println "Separation Manager initialized with ${uselessWords.size()} stop words."
+		log.info "Separation Manager initialized with ${uselessWords.size()} stop words."
 
 	}
 	public static SepManager getSepManager(){
@@ -122,7 +122,7 @@ class SepManager {
 			reg=reg+s+"\n";
 		}
 		Set<String> keywords=TFIDF(reg);
-		println "Got keywords ${keywords}"
+	log.debug "Got keywords ${keywords}"
 		keywords.each{w->
 			if(scores.containsKey(w)){
 				scores[w]+=1.0
@@ -154,6 +154,8 @@ class SepManager {
 
 	//filter out useless contents
 	public static String filter(String s){
+		if(s==null)
+			return null;
 		//filter out the usernames, numbers and urls
 		return s.replaceAll("@[\\u4e00-\\u9fa5a-zA-Z\\-_0-9]+", "").replaceAll(Patterns.URL.reg(),"").replaceAll("\\d+"," ");
 	}
@@ -163,7 +165,7 @@ class SepManager {
 		//the expected number of keywords is around the sqrt of length
 		int num=Math.ceil(Math.sqrt(s.length()));
 		if(num<=2){
-			println "String is too short for any keywords!"
+			log.debug "String is too short for any keywords!"
 			return [:];
 		}
 
@@ -178,11 +180,10 @@ class SepManager {
 		String tfidfPath=base+"temp\\${jobId}jiebaTFIDF.txt";
 		File jiebaTFIDF=new File(tfidfPath);
 		if(!jiebaTFIDF.exists()){
-			println "File not found: ${tfidfPath}";
+			log.error "File not found: ${tfidfPath}";
 		}else{
 			jiebaTFIDF.withReader('UTF-8'){
 				jiebaTFIDF.readLines().each {
-					//println it;
 					callIncrement(keywordOdds,it,0.483);
 				}
 			}
@@ -190,7 +191,7 @@ class SepManager {
 		String trPath=base+"temp\\${jobId}jiebaTextRank.txt";
 		File jiebaTextrank=new File(trPath);
 		if(!jiebaTextrank.exists()){
-			println "File not found: ${trPath}";
+			log.error "File not found: ${trPath}";
 		}else{
 			jiebaTextrank.withReader('UTF-8'){
 				jiebaTextrank.readLines().each{
@@ -201,8 +202,8 @@ class SepManager {
 		}
 
 		//store raw keywords
-		println "Raw keywords without organizing."
-		println keywordOdds;
+		log.debug "Raw keywords without organizing."
+		log.debug keywordOdds;
 		//filter out stop words
 		HashSet<String> useless=new HashSet<>();
 		keywordOdds.each{
@@ -210,11 +211,11 @@ class SepManager {
 				useless.add(it.key);
 		}
 		useless.each{
-			//println "Filter out useless keyword "+it;
+			//log.debug "Filter out useless keyword "+it;
 			keywordOdds.remove(it);
 		}
 		//return only the top results
-		println "Sorting"
+		log.debug "Sorting...";
 		keywordOdds=keywordOdds.sort { a, b -> b.value <=> a.value };
 
 		//check if negation words exist before return
@@ -268,10 +269,10 @@ class SepManager {
 
 		//cleanup output files from jieba
 		if(jiebaTextrank.delete()==false){
-			println "Task ${jobId} Failed to clean up jieba textrank output.";
+			log.error "Task ${jobId} Failed to clean up jieba textrank output.";
 		}
 		if(jiebaTFIDF.delete()==false){
-			println "Task ${jobId} Failed to clean up jieba tfidf output.";
+			log.error "Task ${jobId} Failed to clean up jieba tfidf output.";
 		}
 
 		return results;
@@ -286,7 +287,7 @@ class SepManager {
 		for(def e:keywordOdds){
 			result.put(e.key,e.value);
 			if(i>=number){
-				//println "Task final keywords: "+result;
+				//log.debug "Task final keywords: "+result;
 				return result;
 
 			}
@@ -311,7 +312,7 @@ class SepManager {
 				Boolean deleteL;
 				Boolean deleteM;
 				Boolean deleteR;
-				//println "L:${left} R:${right}";
+				//log.debug "L:${left} R:${right}";
 				if(left==""||keywordOdds[left]!=null){
 					deleteL=true;
 					if(left!=""&&!improvedHolder.contains(left)){
@@ -361,7 +362,7 @@ class SepManager {
 				}
 			}
 		}
-		//println results;
+		//log.debug results;
 		return results;
 	}
 	//
@@ -400,12 +401,12 @@ class SepManager {
 			//if(isNeeded(word))
 			result.add(word.getValue());
 		}
-		println "Segmentation complete with "+result.size+" segments.";
+		log.debug "Segmentation complete with "+result.size+" segments.";
 		return result;
 	}
 	//segment a string into words
 	public ArrayList<String> segment(String s){
-		println "Use Fnlp to segement sentence"
+		log.debug "Use Fnlp to segement sentence"
 		//first filter unnecessary elements
 		s=filter(s);
 		//use Fnlp to segment sentences
@@ -415,7 +416,7 @@ class SepManager {
 	}
 	//get raw segments
 	public ArrayList<String> segment(Collection<String> c){
-		println "Use Fnlp to segement sentences"
+		log.debug "Use Fnlp to segement sentences"
 		ArrayList<String> results=new ArrayList<>();
 		c.each{
 			results.addAll(segment(it));
@@ -491,7 +492,7 @@ class SepManager {
 	//of the result words, filter out the useless ones
 	//		if(uselessWords.contains(word.getValue())){
 	//			result=false;
-	//			//println "Found useless word "+word.getValue()+"!!"
+	//			//log.debug "Found useless word "+word.getValue()+"!!"
 	//		}
 	//		return result;
 	//	}
@@ -509,7 +510,7 @@ class SepManager {
 		useless.each {
 			uselessWords.add(it);
 		}
-		println "SeparatorManager initialized with "+uselessWords.size()+" words filtered."
+		log.debug "SeparatorManager initialized with "+uselessWords.size()+" words filtered."
 	}
 
 	//obsoleted because of using jcseg
@@ -528,7 +529,7 @@ class SepManager {
 	//			if(isNeeded(word))
 	//				result.add(word.getValue());
 	//		}
-	//		println "Segmentation complete with "+result.size+" segments.";
+	//		log.debug "Segmentation complete with "+result.size+" segments.";
 	//		return result;
 	//	}
 	public ArrayList<ArrayList<String>> parallelSeg(ArrayList<String> contents){
@@ -657,9 +658,18 @@ class SepManager {
 		//		String temp=gson.toJson(jw);
 		//		output.append(temp);
 
-		String test="�����û���ѿ���Ӱ ��ˮ�� ����Ȧ�永���ܣ�����һ��������� ����Ȧ�永���ܣ�����һ��������� ��Ӱ�� ��ۇ����¸�Ƭ:���ǳ�̨������ ��ۇ����¸�Ƭ:���ǳ�̨������ ������ ��󣢺���������������1��50�� ��󣢺���������������1��50�� ����ײ���� ��¸���?����̫�� ��Ӧ:����Ӳ�͵��·� ��¸���?����̫�� ��Ӧ:����Ӳ�͵��·� ����Bigbang ���ۇ壢������:��ӰȦ����ô�� ���ۇ壢������:��ӰȦ����ô�� ���ֹ�Ǿ� ah���ܿ���ӭȢ������ ah���ܿ���ӭȢ������ �������׵���ָ�� ���壬�ط��� ��һ��ġ��Ը����߳� ���ε㿨 7�ۿ�� ���������Ķ�iPhone�� �������׵���ָ�� ���� / �����밢Sa��������Ӱ ����������Ůǹ�� ��Ώ�Ӧ���ۇ塷����:��Ӱ���ź����� ����ר�� ��� ������baby��֤��� �������������� ���������� �����˱߲����׹¥���� �����ȵ� ��� ��Ӱ / �����������ڵس�� �������������� ���׸��ᷳ����007:��ѡ������ ���Ϊ��Ǯ ���Ҳ߻� �����С������˹��Ӱ�������� �����С������˹��Ӱ�������� �Ի� ר������͢��ֱ����ͻ�Ц�� ר������͢��ֱ����ͻ�Ц�� "
+		String test="""用自己的努力付出创造出自己真正想要的未来 ~
+北京原駐
+了解百姓，关注百姓。
+轻财足以聚人，律己足以服人，量宽足以得人，身先足以率人。
+手自一体汽车技术已经为中国汽车界创造纯利潤2000多亿元。近期的简易房车。价格10万元左右――这是填补市场空白。欢迎各位给我打电话181 0432 8290
+胸怀正义 敢于执言 维护公平 创建和谐 新浪微博社区委员会专家成员
+社会心理学者、大学兼职教授、心理顾问与商务顾问。关注社会变迁，关注心态演化，关注成长适应，关注发展促进。网站：http://chinaxhpsy.sunbo6.net
+法律专家 ,从业30多年。
+其实我很帅只是帅的不明显。。。我等待自己的另一半
+佛教禅宗曹洞宗第二十六代传人，菏泽宗第四十代传人，中国禅文化研修院院长，中国佛教书画研修院副院长，中国佛医研究会执行主席。""";
 		def n=sep.extractKeywords(test);
-		def m=sep.segment(test);
-		println m;
+		//def m=sep.segment(test);
+		println n;
 	}
 }

@@ -29,18 +29,6 @@ class JobController {
 		}
 		return job;
 	}
-	public static Job initiateJob(){
-		Job job=new Job();
-		//job.userName="empty";
-		log.debug "Initiate job";
-		log.debug job.getUserName();
-		job.save(flush:true);
-
-		if(job.hasErrors())
-			log.error job.errors;
-		log.info "New empty job initiated "+job.id;
-		return job;
-	}
 	public static Job initiateJob(String name){
 		Job job=new Job(name);
 
@@ -66,31 +54,40 @@ class JobController {
 					log.debug "Data got from keywordSlave: "+data;
 					session.setAttribute("keywords",data);
 					break;
-
-				case "relation":
-					data = job.relationSlave();
-					log.debug "Data got from relationSlave: "+data;
-					session.setAttribute("relations",data);
+				case "stats":
+					data=job.statSlave();
+					log.debug "Data got from timelineSlave: ":data;
+					session.setAttribute("stats",data);
 					break;
-				case "network":
-					data=job.networkSlave();
-					log.debug "Data got from networkSlave: "+data;
-					session.setAttribute('network',data);
+				//				case "relation":
+				//					data = job.relationSlave();
+				//					log.debug "Data got from relationSlave: "+data;
+				//					session.setAttribute("relations",data);
+				//					break;
+				//				case "network":
+				//					data=job.networkSlave();
+				//					log.debug "Data got from networkSlave: "+data;
+				//					session.setAttribute('network',data);
+				//					break;
+				case "interaction":
+					data=job.interactionSlave();
+					log.debug "Data got from interactionSlave: ":data;
+					session.setAttribute("interactions",data);
 					break;
 				case "cluster":
 					data=job.clusterSlave();
 					log.debug "Data got from clusterSlave: "+data;
 					session.setAttribute("clusters",data);
 					break;
-				case "deepCrawl":
-					data=job.deepCrawlSlave();
-					log.debug "Data got from deepCrawlSlave: "+data;
-					session.setAttribute("deepCrawl",data);
-					break;
 				case "timeline":
 					data=job.timelineSlave();
 					log.debug "Data got from timelineSlave: ":data;
 					session.setAttribute("timeline",data);
+					break;
+				case "deepCrawl":
+					data=job.deepCrawlSlave();
+					log.debug "Data got from deepCrawlSlave: "+data;
+					session.setAttribute("deepCrawl",data);
 					break;
 				default:
 					log.error "No job matching. Job trigger failed.";
@@ -140,7 +137,7 @@ class JobController {
 	}
 	public static boolean isValid(Job job){
 		//get the user
-		String name=job.getUserName();
+		String name=job?.getUserName();
 		if(name==null||name==""){
 			log.info "Cannot find user name from job.";
 			return false;

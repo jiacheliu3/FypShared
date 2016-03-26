@@ -36,6 +36,7 @@ function showUserInfo(jsonData) {
 function predictTime(jsonData) {
 	var status=document.getElementById("knowledgeStatus");
 	var zone=document.getElementById("crawlerEstimation");
+		
 	var pageCount=jsonData["pageCount"];
 	var threadCount=jsonData["botCount"];
 	console.log("Page:"+pageCount+" Thread:"+threadCount);
@@ -54,7 +55,7 @@ function predictTime(jsonData) {
 	var known=jsonData["knownCount"];
 	var all=jsonData["weiboCount"];
 	var ratio=known/all;
-	if(ratio==1){
+	if(ratio>=1){
 		write(status,known+" out of "+all+" microblogs are known by the system already. No need to crawl user data since all is known already.");
 		time=0;
 	}
@@ -65,23 +66,43 @@ function predictTime(jsonData) {
 	}else{
 		write(status,known+" out of "+all+" microblogs only are known by the system. It's suggested a deep crawl is done on all the user's microblogs.");
 	}
-	//predict time needed
+	
+	//calculate time 
+	updateCrawlerTimeTag(time);
+	
+	return true;
+}
+function updateCrawlerTimeTag(time){
+	var crawlTimeZone=document.getElementById("crawlerTimeZone");
+	var crawlTimeTag=document.getElementById("crawlerTimeTag");
+	//predicted time needed
 	if(time=0){
-		write(zone,"Deep crawling not needed.");
+		//write(zone,"Deep crawling not needed.");
+		crawlTimeTag.innerHTML="Not needed.";
+		crawlTimeZone.className="label label-success pull-right";
 	}
 	else if(time<=10){
-		write(zone,"Estimated time needed is ~10s. Please don't step away.");
+		//write(zone,"Estimated time needed is ~10s. Please don't step away.");
+		crawlTimeTag.innerHTML="~10s";
+		crawlTimeZone.className="label label-success pull-right";
 	}else if(time<=30){
-		write(zone,"Estimated time is ~30s. Have a drink and get back.");
+		//write(zone,"Estimated time is ~30s. Have a drink and get back.");
+		crawlTimeTag.innerHTML="~30s";
+		crawlTimeZone.className="label label-warning pull-right";
 	}else if(time<=60){
-		write(zone,"1 min is not so long. Be patient.");
+		//write(zone,"1 min is not so long. Be patient.");
+		crawlTimeTag.innerHTML="~1min";
+		crawlTimeZone.className="label label-warning pull-right";
 	}else if(time>=1200){
-		write(zone,"The user has quite some contents to crawl Please do sth else and don't close the page.");
+		//write(zone,"The user has quite some contents to crawl Please do sth else and don't close the page.");
+		crawlTimeTag.innerHTML=">20min";
+		crawlTimeZone.className="label label-danger pull-right";
 	}else{
-		write(zone,"The job can't finish in around 10 min. Please take a rest and get back.");
+		//write(zone,"The job can't finish in around 10 min. Please take a rest and get back.");
+		crawlTimeTag.innerHTML="Unknown";
+		crawlTimeZone.className="label label-danger pull-right";
 	}
 	console.log("Finished time prediction.");
-	return true;
 }
 function updateCrawlStatus(jsonData){
 	var progress=document.getElementById('deepCrawlStatusBar');

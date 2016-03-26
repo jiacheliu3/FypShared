@@ -3,7 +3,7 @@ import codebigbrosub.BackgroundController;
 class BootStrap {
 
     def init = { servletContext ->
-		BackgroundController.loadTypes();
+		//BackgroundController.loadTypes();
     }
     def destroy = {
     }

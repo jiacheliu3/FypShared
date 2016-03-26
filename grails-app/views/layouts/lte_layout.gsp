@@ -36,7 +36,9 @@
 
 <!-- Must-use JS libraries go first -->
 <g:javascript src="toolbox/jquery.min.js" />
-<g:javascript src="toolbox/d3.js" />
+<!-- Graph specific -->
+<g:javascript src="toolbox/d3plus.full.js" />
+
 
 <!-- HTML5 Shim and Respond.js IE8 support of HTML5 elements and media queries -->
 <!-- WARNING: Respond.js doesn't work if you view the page via file:// -->
@@ -47,6 +49,11 @@
 
 <!-- Put the header here -->
 <g:layoutHead />
+<style>
+h1,h2,h3,h4,h5,p{
+	font-family:'Source Sans Pro',sans-serif !important;
+}
+</style>
 </head>
 
 <body class="hold-transition skin-blue sidebar-mini">
@@ -72,7 +79,7 @@
 
 	<!-- Toolbox -->
 	<!-- Generally needed by all pages -->
-	<g:javascript src="toolbox/d3.js" />
+
 	<!-- Bootstrap 3.3.5 -->
 	<g:javascript src="toolbox/bootstrap.js" />
 	<!-- SlimScroll -->
@@ -92,6 +99,8 @@
 	
 	<!-- Page specific -->
 	<g:pageProperty name="page.javascript" />
+	
+	
 
 	
 	<script>
@@ -104,9 +113,12 @@
 
 		var crawlerNoticeSent = false;
 		var keywordNoticeSent = false;
-		var relationNoticeSent = false;
-		var networkNoticeSent = false;
+		var statNoticeSent=false;
+		//var relationNoticeSent = false;
+		//var networkNoticeSent = false;
+		var interactionNoticeSent=false;
 		var clusterNoticeSent = false;
+		var timelineNoticeSent=false;
 		var deepCrawlerNoticeSent = false;
 	</script>
 </body>

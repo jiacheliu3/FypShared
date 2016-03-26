@@ -6,6 +6,8 @@
 (function() {
 
     var timeseries = function(spaced, data, enableBrush) {
+    	console.log("The spots to put on the timeline are: ");
+    	console.log(data);
         classd = spaced.replace(new RegExp(" "), ".");
         render(classd, spaced, data, enableBrush);
     }
@@ -86,7 +88,8 @@
             bottom: 15,
             left: 35
         }
-        var width = window.innerWidth - 150;
+        //var width = window.innerWidth - 150;
+        var width=1300;
         var height = (lessThanDay(padding.pad)) ? (100 - margin.top - margin.bottom) : (300 - margin.top - margin.bottom);
 
         var x = d3.time.scale().range([0 + margin.right, width - margin.left]),
@@ -96,6 +99,8 @@
         var ticks = width > 800 ? 8 : 4;
 
         x.domain(d3.extent([padding.minDate, padding.maxDate]));
+        console.log("Max date is: "+padding.maxDate);
+        console.log("Min date is: "+padding.minDate);
 
         var xFormat, yFormat;
         if (lessThanDay(padding.pad)) {
@@ -106,10 +111,12 @@
             xFormat = "%m/%d/%y";
             yFormat = "%H:%M";
             var start = new Date(2012, 0, 1, 0, 0, 0, 0).getTime();
+            //var stop = new Date(2012, 0, 1, 23, 59, 59, 59).getTime();
             var stop = new Date(2012, 0, 1, 23, 59, 59, 59).getTime();
             y.domain(d3.extent([start, stop]));
         }
-
+        console.log("The xFormat is: "+xFormat);
+        console.log("yFormat is: "+yFormat);
         var xAxis = d3.svg.axis().scale(x).orient("bottom")
             .ticks(ticks)
             .tickSize(-height, 0)

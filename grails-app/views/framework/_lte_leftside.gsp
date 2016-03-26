@@ -19,10 +19,6 @@
 			<li id="deepCrawlLink" class="treeview"><a myFlag="important"
 				href="/CodeBigBroSub/environment/asynchroDeepCrawl"> <i
 					class="fa fa-download"></i>&nbsp; Crawler
-					<!-- 
-					<span id="deepCrawlLinkLabel"
-					class="label label-default pull-right labelSpan">Not started</span>
-					-->
 					<i id="deepCrawlLinkLabel" class="fa fa-circle-o text-grey pull-right"></i>
 			</a></li>
 
@@ -30,38 +26,42 @@
 			<li id="keywordLink" class="treeview"><a
 				href="/CodeBigBroSub/framework/keywords"> <i
 					class="fa fa-newspaper-o"></i>&nbsp; Keyword Study 
-					<!-- 
-					<span id="keywordLinkLabel"
-					class="label label-default pull-right labelSpan">Not started</span>
-					-->
 					<i id="keywordLinkLabel" class="fa fa-circle-o text-grey pull-right"></i>
 			</a></li>
+			<li id="statLink" class="treeview"><a
+				href="/CodeBigBroSub/framework/stats"> <i class="fa fa-users"></i>&nbsp;
+					User Statistics
+					<i id="statLinkLabel" class="fa fa-circle-o text-grey pull-right"></i>
+			</a></li>
+			<!-- 
 			<li id="relationLink" class="treeview"><a
 				href="/CodeBigBroSub/framework/relation"> <i class="fa fa-users"></i>&nbsp;
 					Interactions
-					<!-- 
-					<span id="relationLinkLabel"
-					class="label label-default pull-right labelSpan">Not started</span>
-					-->
 					<i id="relationLinkLabel" class="fa fa-circle-o text-grey pull-right"></i>
 			</a></li>
-			<li id="networkLink" class="treeview"><a
+			 -->
+			 <!-- 
+			 <li id="networkLink" class="treeview"><a
 				href="/CodeBigBroSub/framework/network"> <i
 					class="fa fa-sitemap"></i>&nbsp; Networks
-					<!-- 
-					<span id="networkLinkLabel"
-					class="label label-default pull-right labelSpan">Not started</span> -->
 					<i id="networkLinkLabel" class="fa fa-circle-o text-grey pull-right"></i>
 			</a></li>
+			  -->
+			 <li id="interactionLink" class="treeview"><a
+				href="/CodeBigBroSub/framework/interaction"> <i class="fa fa-users"></i>&nbsp;
+					User Interactions
+					<i id="interactionLinkLabel" class="fa fa-circle-o text-grey pull-right"></i>
+			</a></li>			
 			<li id="clusterLink" class="treeview"><a
 				href="/CodeBigBroSub/framework/cluster"> <i
-					class="fa fa-object-group"></i>&nbsp; Topics
-					<!-- 
-					<span id="clusterLinkLabel"
-					class="label label-default pull-right labelSpan">Not started</span>
-					-->
+					class="fa fa-object-group"></i>&nbsp; User Topics
 					<i id="clusterLinkLabel" class="fa fa-circle-o text-grey pull-right"></i>
 					
+			</a></li>
+			<li id="timelineLink" class="treeview"><a
+				href="/CodeBigBroSub/framework/timeline"> <i class="fa fa-users"></i>&nbsp;
+					User Timeline
+					<i id="timelineLinkLabel" class="fa fa-circle-o text-grey pull-right"></i>
 			</a></li>
 			<li class="header">Restart</li>
 			<li class="treeview"><a href="/CodeBigBroSub/framework/newIndex">

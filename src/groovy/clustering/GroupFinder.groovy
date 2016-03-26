@@ -1,8 +1,10 @@
 package clustering
 
 import groovy.json.JsonSlurper
+import groovy.util.logging.Log4j
 import segmentation.PythonCaller
 
+@Log4j
 class GroupFinder {
 	static Map<String,Integer> featureMap=new HashMap<>();
 	static String base="C:\\Users\\jiacheliu3\\git\\projects\\CodeBigBro\\";
@@ -16,7 +18,7 @@ class GroupFinder {
 		File features=new File(base+"weiboFeatures.txt");
 		int lineNum=0;
 		if(!features.exists()){
-			println "Sth wrong with features file!"
+			log.error "Sth wrong with features file!"
 		}
 		features.withReader('utf-8'){
 			def contents=it.readLines();
@@ -29,7 +31,7 @@ class GroupFinder {
 			}
 
 		}
-		println "${featureMap.size()} features found"
+		log.info "${featureMap.size()} features found"
 	}
 	public static void loadClusters(){
 		File clusterFile=new File(base+'clusterModel.txt');
@@ -40,15 +42,11 @@ class GroupFinder {
 				String tag= parts[0];
 				def jsonSlurper = new JsonSlurper();
 				def vector = jsonSlurper.parseText(parts[1]);
-				//println vector.class;
-
 				def array=vector.toArray();
-				//println array;
-
 				clusterMeans.put(tag,array.toList());
 
 			}else{
-				println "Empty line, no tags and point found";
+				log.error "Empty line, no tags and point found";
 			}
 		}
 		//println clusterMeans;
@@ -59,13 +57,13 @@ class GroupFinder {
 		//segment the content and map to vector
 		double[] values=new double[dimension];
 		def wordbag=PythonCaller.pythonSeg(content);
-		println "Got keywords ${wordbag}";
+		log.debug "Got keywords ${wordbag}";
 		//def wordbag=SepManager.getSepManager().segment(content);
 		wordbag.each{
 			if(featureMap.containsKey(it))
 				values[featureMap[it]-1]=1.0;
 		}
-		println "Generated vector ${values}";
+		log.debug "Generated vector ${values}";
 		//find the cluster
 		String tag=findClosestTag(values);
 
@@ -73,7 +71,7 @@ class GroupFinder {
 		
 	}
 	public static String findClosestTag(double[] vector){
-		println "Input vector has dimension ${vector.length}";
+		log.debug "Input vector has dimension ${vector.length}";
 		double distance=100000;
 		String tag;
 		clusterMeans.each{key,value->
@@ -83,13 +81,13 @@ class GroupFinder {
 				distance=d;
 			}
 		}
-		println "Final closest cluster is ${tag} with distance ${distance}";
+		log.debug "Final closest cluster is ${tag} with distance ${distance}";
 		return tag;
 	}
 	public static double calculateDistance(double[] A,double[] B){
 		//check dimension
 		if(A.length!=B.length){
-			println "Two vectors don't match in dimension. A: ${A.length} and B:${B.length}";
+			log.error "Two vectors don't match in dimension. A: ${A.length} and B:${B.length}";
 			return 10000.0;
 		}
 		else{
@@ -105,7 +103,7 @@ class GroupFinder {
 	public static void main(String[] args){
 		loadFeatures();
 		loadClusters();
-		classify("ÓÉÓ©Ê¯¶À¼Ò¹ÚÃûµÄ¡¶ÎÒÊÇ´«Ææ¡·»î¶¯½«ÓÚ7ÔÂ18ÈÕÕıÊ½Æô¶¯£¬ÕâÊÇÒ»Ïî×·ÃÎÏîÄ¿£¬ÖúÁ¦Ö÷ÈË¹«¡°´óºÓ¡±ÖØ·µÀ¶Ìì¡£´óºÓÊÇÉ¡È¦ÀïµÄ´«Ææ£¬ËûÔÚ2013ÄêÒ»´ÎÔË¶¯ÒâÍâÊÂ¹ÊÑÏÖØÖÂÉË£¬Ôì³ÉĞ¡¸¹ÒÔÏÂÊ§È¥Öª¾õ¡£±¾»î¶¯ÕıÔÚ½ôÂàÃÜ¹ÄµÄ³ï±¸ÖĞ¡£¿ì¿´ÎÒÃÇµÄË§´óºÓ£¬ÕıÔÚ½ÓÊÜCCTVµÄ²É·ÃÄØ");
+		classify("ï¿½ï¿½Ó©Ê¯ï¿½ï¿½ï¿½Ò¹ï¿½ï¿½ï¿½Ä¡ï¿½ï¿½ï¿½ï¿½Ç´ï¿½ï¿½æ¡·ï¿½î¶¯ï¿½ï¿½ï¿½ï¿½7ï¿½ï¿½18ï¿½ï¿½ï¿½ï¿½Ê½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ò»ï¿½ï¿½×·ï¿½ï¿½ï¿½ï¿½Ä¿ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ë¹ï¿½ï¿½ï¿½ï¿½ï¿½Ó¡ï¿½ï¿½Ø·ï¿½ï¿½ï¿½ï¿½ì¡£ï¿½ï¿½ï¿½ï¿½ï¿½É¡È¦ï¿½ï¿½Ä´ï¿½ï¿½æ£¬ï¿½ï¿½ï¿½ï¿½2013ï¿½ï¿½Ò»ï¿½ï¿½ï¿½Ë¶ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Â¹ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ë£ï¿½ï¿½ï¿½ï¿½Ğ¡ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ê§È¥Öªï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½î¶¯ï¿½ï¿½ï¿½Ú½ï¿½ï¿½ï¿½ï¿½Ü¹ÄµÄ³ï±¸ï¿½Ğ¡ï¿½ï¿½ì¿´ï¿½ï¿½ï¿½Çµï¿½Ë§ï¿½ï¿½Ó£ï¿½ï¿½ï¿½ï¿½Ú½ï¿½ï¿½ï¿½CCTVï¿½Ä²É·ï¿½ï¿½ï¿½");
 
 	}
 }

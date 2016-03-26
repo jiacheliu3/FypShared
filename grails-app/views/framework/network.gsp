@@ -107,8 +107,6 @@ button {
 								<div id="tagNetwork"></div>
 								<a href="/CodeBigBroSub/tag/listAll">All available tags</a>
 							</div>
-
-
 						</div>
 						<!-- /.box-body -->
 					</div>
@@ -206,9 +204,9 @@ button {
 						//console.log("adding this to the links");
 						//console.log(theLink);
 						m[theLink.target].push(theLink);
-						console.log("Now the entry has");
+						//console.log("Now the entry has");
 						var mmm = m[theLink.target];
-						console.log(mmm);
+						//console.log(mmm);
 					} else
 						console.log("Field " + theLink.target
 								+ " not found in m");

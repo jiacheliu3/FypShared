@@ -7,7 +7,7 @@ public enum Patterns {
 	TIME("\\d{2}:\\d{2}:\\d{2}"),
 	NUM("\\d+"),
 	URL("\\b(https?|ftp|file)://[-a-zA-Z0-9+&@#/%?=~_|!:,.;]*[-a-zA-Z0-9+&@#/%=~_|]"),
-	USERID("\\d{10}"),
+	USERID("\\d{9,11}"),
 	WEIBOID("\\d{16}"),
 	AT("@[\\u4e00-\\u9fa5a-zA-Z\\-_0-9]+"),
 	PUNC("[^\\u4e00-\\u9fa5a-zA-Z0-9]+"),

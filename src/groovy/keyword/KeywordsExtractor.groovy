@@ -1,6 +1,10 @@
 package keyword
 
 import static grails.async.Promises.*
+import static toolkit.JobLogger.jobLog;
+
+import java.util.logging.Logger;
+
 import grails.async.Promise
 import grails.async.PromiseList
 import groovy.util.logging.Log4j
@@ -14,34 +18,42 @@ class KeywordsExtractor {
 		return SepManager.getSepManager().extractKeywords(content);
 	}
 
-	public static void keywordStudy(User u){
+	public static void keywordStudy(User u,Job job){
 		//only for testing purpose
 		if(u==null){
-			def l=User.withTransaction{User.findAll("from User as u order by u.weiboId",[max: 1]);}
-			u=l[0];
-			println "Found the white rat ${u}";
+			log.error "A NULL user is passed to keyword study!";
+			jobLog(job.id,"The user is null!");
+			return;
 		}
 		def weibos;
-
 		Weibo.withTransaction{weibos=Weibo.findAll("from Weibo as w where w.ownerName=?", [u.weiboName]);}
+		if(weibos==null||weibos.size()==0){
+			log.info "No weibo found for user. Keyword study finished.";
+			jobLog("The user has no microblog known in the database so no result from keyword study. You should activate the crawler to collect them first.");
+			return;
+		}
+		log.info "Studying user keywords based on ${weibos.size()} weibo items.";
+		jobLog(job.id,"Extracting keywords from ${weibos.size()} microblogs of the user.");
+		
 		//get keywords in parallel
 		u.keywords=parallelKeywords(u,weibos);
-		println u.keywords;
 		User.withTransaction {
 			u.merge(flush:true);
-			if(u.hasErrors())
-				println u.errors;
-			else{
-				println "User keyword study complete";
-				println "Now the user has\n Keywords: ${u.keywords}\nTags: ${u.tags}";
+			if(u.hasErrors()){
+				log.error "An error occurred saving keywords for user.";
+				log.error u.errors;
+			}else{
+				log.info "User keyword study complete";
+				log.info "Now the user has\n Keywords: ${u.keywords}\nTags: ${u.tags}";
 			}
 		};
+		jobLog(job.id,"Keyword extraction is finished.");
 	}
 	public static Map<String,Double> parallelKeywords(User u=null,Collection<Weibo> weibos){
 		LinkedHashMap<String,Double> keywords=new LinkedHashMap<>();
 
 		//decide the scope of weibo and assign tasks
-		println "${weibos.size()} items to extract keywords from.";
+		log.info "${weibos.size()} items to extract keywords in parallel.";
 		int siz=weibos.size();
 		int processNumber;
 
@@ -52,9 +64,9 @@ class KeywordsExtractor {
 		}else{
 			processNumber=10;
 		}
-		println "${processNumber} processes to activate.";
+		log.info "${processNumber} processes to activate.";
 		int eachTask=weibos.size()/processNumber;
-		println "Each process has ${eachTask} weibo items to handle.";
+		log.info "Each process has ${eachTask} weibo items to handle.";
 		def missions=[];
 		for(int i=0;i<processNumber;i++){
 
@@ -65,7 +77,7 @@ class KeywordsExtractor {
 			}else{
 				endIndex=i*eachTask+eachTask;
 			}
-			println "Task generated for ${startIndex} to ${endIndex}.";
+			log.info "Task generated for ${startIndex} to ${endIndex}.";
 			missions.add(weibos.subList(startIndex,endIndex));
 		}
 		Set<String> gotTags=new HashSet<>();
@@ -75,20 +87,20 @@ class KeywordsExtractor {
 			int scope=myWeibos.size();
 			boolean approx=false;
 			if(scope>=30){
-				println "Too many items. Activate approximation methods.";
+				log.info "Too many items. Activate approximation methods.";
 				approx=true;
 			}
-			println "${scope} weibos for this thread to handle.";
+			log.info "${scope} weibos for this thread to handle.";
 			HashMap<String,Double> myKeywords=new HashMap<>();
 			Weibo.withNewSession{
-				println "New weibo session.";
+				log.info "New weibo session.";
 
 				int counter;
 				String content;
 				for(Weibo weibo:myWeibos){
 					weibo=weibo.merge();
 					if(weibo==null){
-						println "Weibo lost in merging the session";
+						log.error "Weibo lost in merging the session";
 						continue;
 					}
 					if(approx){
@@ -102,7 +114,7 @@ class KeywordsExtractor {
 						//just append the contents to buffer
 						content=content+"\n"+reg;
 						if(counter%10==0||counter==myWeibos.size()-1){
-							println "Counter is ${counter}. Keywords study starts.";
+							log.info "Counter is ${counter}. Keywords study starts.";
 							//work
 							SepManager sep=SepManager.getSepManager();
 							Map<String,Double> parts=sep.extractKeywords(content);
@@ -110,17 +122,19 @@ class KeywordsExtractor {
 							//classify each weibo
 							String tag=Classifier.classify(content);
 							if(tag==null){
-								println "No tag for weibo "+content;
+								log.info "No tag for weibo "+content;
 							}else{
 								Tag t=Tag.find("from Tag as tg where tg.name=?",[tag]);
 								if(t==null){
-									println "Tag ${tag} not found";
+									log.error "Tag ${tag} not found";
 								}else{
 									gotTags.add(tag);
 									weibo.tag=t;
 									weibo.merge();
-									if(weibo.hasErrors())
-										println weibo.errors;
+									if(weibo.hasErrors()){
+										log.error "An error occurred saving tags to weibo ${weibo}";
+										log.error weibo.errors;
+									}
 								}
 							}
 							//reset buffer
@@ -135,54 +149,55 @@ class KeywordsExtractor {
 						}else{
 							reg=weibo.content;
 						}
-						//println weibo.content;
 						SepManager sep=SepManager.getSepManager();
 						Map<String,Double> parts=sep.extractKeywords(reg);
 						myKeywords.putAll(parts);
 						//classify each weibo
 						String tag=Classifier.classify(reg);
 						if(tag==null){
-							println "No tag for weibo "+reg;
+							log.info "No tag for weibo "+reg;
 						}else{
 							Tag t=Tag.find("from Tag as tg where tg.name=?",[tag]);
 							if(t==null){
-								println "Tag ${tag} not found";
+								log.error "Tag ${tag} not found";
 							}else{
 								gotTags.add(tag);
 								weibo.tag=t;
 								weibo.merge();
-								if(weibo.hasErrors())
-									println weibo.errors;
+								if(weibo.hasErrors()){
+									log.error "An error occurred merging tag to reposted weibo ${weibo}";
+									log.error weibo.errors;
+								}
 							}
 						}
 					}
 				}//end of for loop
 			}
-			println "Final keywords from this thread are:"+myKeywords;
+			log.info "Final keywords from this thread are:"+myKeywords;
 			return myKeywords;
 		}
 
 		//user promises
 		Collection results;
 		PromiseList promises=new PromiseList();
-		println "${missions.size()} tasks to assign to threads.";
+		log.info "${missions.size()} tasks to assign to threads.";
 		missions.collect{myTask->
 			Promise p=task{extractTask(myTask)}
 			if(p==null)
-				println "Promise is null!";
+				log.error "Promise is null!";
 			promises.add(p);
 		}
 		promises.onError{Throwable t->
-			println "Got error in parallel keyword extraction.";
-			println t.message;
+			log.error "Got error in parallel keyword extraction.";
+			t.printStackTrace();
 
 		}
 		results=promises.get();
 
 
 		//report the tags and keywords
-		println "Tags found:"+gotTags;
-		println "Keywords found:"+results;
+		log.info "Tags found:"+gotTags;
+		log.info "Keywords found:"+results;
 
 		//add the tags to user
 		gotTags.each{tagName->
@@ -207,7 +222,7 @@ class KeywordsExtractor {
 		for(def e:keywords){
 			s++;
 			if(s>maxKeywords){
-				println "Got ${maxKeywords} keywords already.";
+				log.info "Got ${maxKeywords} keywords already.";
 				break;
 			}
 			chosenKeywords.put(e.key,e.value);
@@ -219,28 +234,28 @@ class KeywordsExtractor {
 	public static Map<String,Double> getWorkResults(Collection<Weibo> weibos){
 		HashMap<String,Double> keywords=new HashMap<>();
 		weibos.each{
-			println it.content;
+			log.debug it.content;
 			SepManager sep=SepManager.getSepManager();
 			Map<String,Double> parts=sep.extractKeywords(it.content);
 			keywords.putAll(parts);
 			//classify each weibo
 			String tag=Classifier.classify(it.content);
 			if(tag==null){
-				println "No tag for weibo "+it.content;
+				log.debug "No tag for weibo "+it.content;
 			}else{
 				//println "tagged as ${tag}";
 				Tag t=Tag.find("from Tag as tg where tg.name=?",[tag]);
 				if(t==null){
-					println "Tag ${tag} not found";
+					log.error "Tag ${tag} not found";
 				}else{
 					it.tag=t;
 					it.merge();
 					if(it.hasErrors())
-						println it.errors;
+						log.error it.errors;
 					else{
 						//println "Weibo tagged as ${tag}";
 					}
-					u.tags.add(t);
+					//u.tags.add(t);
 
 				}
 			}
@@ -251,7 +266,7 @@ class KeywordsExtractor {
 
 	//obsolete
 	public static Map<String,Double> scale(Map<String,Double> keywords){
-		println "Scale start"
+		log.debug "Scale start"
 		double min=50d;
 		double max=100d;
 		//find the scope of original scope
@@ -264,10 +279,10 @@ class KeywordsExtractor {
 
 		keywords.each{key,value->
 			value=(value-a)*(max-min)/(b-a)+min;
-			println "scaled to ${value}"
+			log.info "scaled to ${value}"
 		}
-		println "Scale complete"
-		//println keywords;
+		log.debug "Scale complete"
+
 		return keywords;
 	}
 

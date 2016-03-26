@@ -161,16 +161,21 @@ if (!window.clearImmediate) {
     if (!Array.isArray(elements)) {
       elements = [elements];
     }
-
+    //modified for the sake of null handling
     elements.forEach(function(el, i) {
-      if (typeof el === 'string') {
-        elements[i] = document.getElementById(el);
-        if (!elements[i]) {
-          throw 'The element id specified is not found.';
-        }
-      } else if (!el.tagName && !el.appendChild) {
-        throw 'You must pass valid HTML elements, or ID of the element.';
-      }
+    	if(!el){
+    		console.log(i+"th element is null!");
+    	}else{
+	      if (typeof el === 'string') {
+	        elements[i] = document.getElementById(el);
+	        if (!elements[i]) {
+	          throw 'The element id specified is not found.';
+	        }
+	      } else if (!el.tagName && !el.appendChild) {
+	    	  console.log(i+"th element is not valid: "+el);
+	        //throw 'You must pass valid HTML elements, or ID of the element.';
+	      }
+    	}
     });
 
     /* Default values to be overwritten by options object */

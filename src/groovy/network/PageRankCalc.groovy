@@ -24,17 +24,17 @@ class PageRankCalc {
 
 			count++;
 		}
-		//println "Contructed index: "+indexMap;
+		//log.debug "Contructed index: "+indexMap;
 		return indexMap;
 	}
 	public static Matrix constructTransitionMatrix(Collection<String> nodes,Set<Map> edges,Map<String,Integer> indexMap,boolean isDirected){
 		int n=nodes.size();
 		int x=edges.size();
-		println("${n} nodes and ${x} edges");
+		log.info("${n} nodes and ${x} edges");
 		//construct adjacency matrix
-		println "Begin construction of adjacency matrix.";
-		println "Got index map "+indexMap;
-		println "All links are: "+edges;
+		log.info "Begin construction of adjacency matrix.";
+		log.debug "Got index map "+indexMap;
+		log.debug "All links are: "+edges;
 		Map<String,Integer> sizeMap=new HashMap<>();//out-degree of each node
 		Matrix A=new Matrix(n,n);
 		HashSet<String> notFound=new HashSet<>();
@@ -52,7 +52,7 @@ class PageRankCalc {
 					String s=e.key;
 					if(s.contains(source)){
 						log.info "Got one similar entry in index map:"+s+" on ${e.value} place";
-						log.debug "Comparing the length of two assholes:\n The target one ${source}: ${source.length()}, The found one ${s}:${s.length()}";
+						log.debug "Comparing the length of two:\n The target one ${source}: ${source.length()}, The found one ${s}:${s.length()}";
 						log.debug "Compare the bytes: Target one ${source.getBytes()}, found one:${s.getBytes()}"
 						row=e.value;
 					}
@@ -70,7 +70,7 @@ class PageRankCalc {
 					String s=e.key;
 					if(s.contains(target)){
 						log.info "Got one similar entry in index map:"+s+" on ${e.value} place";
-						log.debug "Comparing the length of two assholes:\n The target one ${target}: ${target.length()}, The found one ${s}:${s.length()}";
+						log.debug "Comparing the length of two:\n The target one ${target}: ${target.length()}, The found one ${s}:${s.length()}";
 						log.debug "Compare the bytes: Target one ${target.getBytes()}, found one:${s.getBytes()}"
 						col=e.value;
 					}
@@ -84,6 +84,8 @@ class PageRankCalc {
 			if(canCal){
 				//else update the degree of the node
 				double value=A.get(row,col);
+				double newValue=value+weight;
+				//log.info "The value is updated from ${value} to ${newValue}";
 				A.set(row, col, value+weight);
 
 				if(sizeMap.containsKey(source)){
@@ -114,7 +116,7 @@ class PageRankCalc {
 				String s=e.key;
 				if(s.contains(theName)){
 					log.info "Got one similar entry in index map:"+s+" on ${e.value} place";
-					log.info "Comparing the length of two assholes:\n The target one ${theName}: ${theName.length()}, The found one ${s}:${s.length()}";
+					log.info "Comparing the length of two:\n The target one ${theName}: ${theName.length()}, The found one ${s}:${s.length()}";
 					f=e.value;
 				}
 			}
@@ -122,7 +124,14 @@ class PageRankCalc {
 				log.error "After scanning the whole map ${theName} is still not found.";
 			}
 		}
-		//A.print(5, 2);
+		log.info "The weight matrix is: ";
+		log.info A.getArray().toString();
+		//calculate the sum of weights
+		double totalWeight=0;
+		edges.each{edge->
+			totalWeight+=edge.weight;
+		}
+		log.info "The total weight of all edges is: ${totalWeight}";
 		//construct transition matrix
 		Matrix M=new Matrix(n,n);
 		for(def e:indexMap){
@@ -143,6 +152,7 @@ class PageRankCalc {
 				double s=1.0/(double)n;
 				for(int j=0;j<n;j++){
 					M.set(row, j,s);
+					//M.set(row, j,0.0);//set node with no out link as 0
 				}
 			}
 			else{
@@ -154,15 +164,15 @@ class PageRankCalc {
 				for(int i=0;i<n;i++){
 					double w=A.get(row, i);//w=0 when no edge
 					M.set(row,i,w/sigma);
+					//M.set(row,i,w/totalWeight);//normalize all edges
 				}
 			}
 
-
-
-
 		}
 		//M.print(5,2);
-		println("Transition matrix complete.");
+		log.info("Transition matrix complete.");
+		log.info "The transition matrix is: ";
+		log.info M.getArray().toString();
 		return M;
 
 	}
@@ -174,7 +184,7 @@ class PageRankCalc {
 
 		int n=nodes.size();
 		if(n==0){
-			println "No nodes passed to pagerank calc!";
+			log.error "No nodes passed to pagerank calc!";
 		}
 		//construct index map storing all nodes and index
 		Map<String,Integer> indexMap=constructIndexMap(nodes);
@@ -184,7 +194,7 @@ class PageRankCalc {
 		Matrix N=new Matrix(1,n,1.0/n);
 		//iteratively calculate
 		Matrix I=new Matrix(1,n,(1.0-damping)/n);
-		println("Start to compute pagerank");
+		log.info("Start to compute pagerank");
 		//		//approximation of times of iterations
 		//		int iter=(int)(Math.log(n)/Math.log(10))+1;
 		//		for(int i=0;i<iter;i++){
@@ -203,7 +213,7 @@ class PageRankCalc {
 			}
 			times++;
 		}
-		println("Converged in ${times} iterations.");
+		log.info("Converged in ${times} iterations.");
 		//assign ranks to nodes
 		Map<String,Double> pageRank=new LinkedHashMap<>();
 		def findName={number->
@@ -233,6 +243,7 @@ class PageRankCalc {
 		return normalizedRank;
 	}
 	public static void main(String[] args){
+		//test example from http://en.wikipedia.org/wiki/PageRank
 		def nodes=[
 			'a',
 			'b',
@@ -247,7 +258,6 @@ class PageRankCalc {
 			'k'
 		];
 		def set=[
-			['source':'b','target':'c','weight':1],
 			['source':'b','target':'c','weight':1],
 			['source':'c','target':'b','weight':1],
 			['source':'d','target':'a','weight':1],
@@ -266,10 +276,10 @@ class PageRankCalc {
 			['source':'j','target':'e','weight':1],
 			['source':'k','target':'e','weight':1]
 		];
-		Set<Map<String>> edges=new HashSet<>();
+		Set<Map> edges=new HashSet<>();
 		edges.addAll(set);
 
-		def yarank=calculatePageRank(nodes,edges,false);
+		def yarank=calculatePageRank(nodes,edges,true);
 		println yarank;
 		yarank=normalize(yarank);
 		println yarank;

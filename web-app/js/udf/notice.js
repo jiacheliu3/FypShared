@@ -7,11 +7,11 @@ function notifyMe() {
 		type : 'success'
 	});
 }
-function errorNotice(job){
+function errorNotice(job) {
 
 	$.notify({
 		// options
-		message : 'An error occurred processing the '+job
+		message : 'An error occurred processing the ' + job
 	}, {
 		// settings
 		type : 'danger'
@@ -40,14 +40,15 @@ function restartReminder() {
 						type : 'info'
 					});
 }
-function sendNotice(m){
+function sendNotice(m) {
 	$.notify(
-			{
-				// options
-				message : m+' job is done. You can go to the corresponding page to check out the result.'
-			}, {
-				// settings
-				type : 'success'
-			});
-	
+					{
+						// options
+						message : m
+								+ ' job is done. You can go to the corresponding page to check out the result.'
+					}, {
+						// settings
+						type : 'success'
+					});
+
 }

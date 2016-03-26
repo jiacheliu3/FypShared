@@ -1,9 +1,11 @@
 package keyword
 
+import groovy.util.logging.Log4j
 import input.Patterns
 
 import java.util.regex.Pattern
 
+@Log4j
 class KeywordFilter {
 	static Pattern punc=Pattern.compile("[\\pP‘’“”]");
 	public static filterList(Collection<String> rawList){
