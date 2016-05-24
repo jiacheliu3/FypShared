@@ -5,6 +5,7 @@ import java.util.Set;
 
 import Jama.Matrix;
 
+/* Deprecated */
 class PageRankCalcDepre {
 	static Set<String> nodeSet=new HashSet<>();
 	static Map<String,Set<String>> edgeMap=new HashMap<>();

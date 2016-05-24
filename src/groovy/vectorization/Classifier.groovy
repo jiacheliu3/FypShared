@@ -1,9 +1,9 @@
 package vectorization
 
-import java.util.TreeMap;
-
+import toolkit.PathManager
 import Jama.Matrix
 
+/* The whole package is deprecated! */
 class Classifier {
 
 	static Matrix F;
@@ -12,7 +12,7 @@ class Classifier {
 	public static int typeNum;
 	public static int featureNum;
 
-	public static String typeHome="C:\\Users\\jiacheliu3\\git\\projects\\CodeBigBro\\data\\type\\types.txt";
+	public static String typeHome=PathManager.classifierTypeFile;
 	public static Map<Integer, String> typeMap=new HashMap<>();
 
 

@@ -4,19 +4,21 @@ import static grails.async.Promises.*
 import grails.async.Promise
 import grails.async.PromiseList
 import groovy.util.logging.Log4j
+import input.FileVisitor
 import input.Patterns
 
 import java.util.concurrent.ConcurrentMap
 import java.util.concurrent.ConcurrentSkipListMap
 
+import keyword.KeywordFilter
+
 import org.lionsoul.jcseg.core.*
 
+import toolkit.PathManager
 import codebigbrosub.Weibo
 
 import com.google.gson.Gson
-
-import keyword.KeywordFilter
-
+import groovy.io.FileType
 
 
 //import org.lionsoul.jcseg.core.*;
@@ -34,9 +36,9 @@ class SepManager {
 	//Singleton
 	private static SepManager manager;
 
-	static String base="C:\\Users\\jiacheliu3\\git\\projects\\CodeBigBro\\";
-	String uselessWordPath=base+"StopWords.txt";
-	TreeSet<String> uselessWords=new TreeSet<>();
+	static String base=PathManager.sepManagerTempFolder;
+	//String uselessWordPath=base+"StopWords.txt";
+	
 
 	HashSet<String> negation1=["��", "��", "��", "��"];
 	HashSet<String> negation2=["����", "��Ҫ", "����", "û��", "����"];
@@ -63,15 +65,7 @@ class SepManager {
 
 		LinkedHashMap<String,Double> keywordOdds=new LinkedHashMap<>();
 
-		//load useless words
-		File stopWords=new File(uselessWordPath);
-		String[] useless=stopWords.readLines();
-		useless.each {
-			uselessWords.add(it);
-		}
-
-		log.info "Separation Manager initialized with ${uselessWords.size()} stop words."
-
+		log.info "SepManager is initialized.";
 	}
 	public static SepManager getSepManager(){
 		if(manager==null)
@@ -87,42 +81,53 @@ class SepManager {
 		PythonCaller.tfidf(content,jobId);
 
 		Set<String> results=new HashSet<>();
-		File jiebaTFIDF=new File(base+"temp\\${jobId}jiebaTFIDF.txt");
+		String featureBase=PathManager.keywordFileTempBase;
+		File jiebaTFIDF=new File(featureBase+"\\${jobId}jiebaTFIDF.txt");
+		if(!jiebaTFIDF.exists()){
+			log.error "The python output file is not there!";
+			//other methods to be taken
+			return [] as Set<String>;
+		}
 		jiebaTFIDF.withReader('UTF-8'){
-			jiebaTFIDF.readLines().each {
-				results.add(it);
+			jiebaTFIDF.readLines().each {line->
+				//each line is composed of a few keywords separated by comma
+				def parts=line.split(',');
+				results.addAll(parts);
 			}
+		}
+		if(!jiebaTFIDF.delete()){
+			log.error "Temp file ${jiebaTFIDF.getCanonicalPath()} cannot be deleted!";
 		}
 		return results;
 	}
 	public Set<String> TFIDF(Collection<String> c,int number){
 		LinkedHashMap<String,Double> scores=new LinkedHashMap<>();
 		//single-thread tfidf
-//		for(String s:c){
-//			if(s.length()<=5){
-//				continue;
-//			}
-//			//expected+=Math.ceil(Math.sqrt(s.length()));
-//			//get keywords from
-//			Set<String> keywords=TFIDF(s);
-//			println "Got keywords ${keywords}"
-//			keywords.each{w->
-//				if(scores.containsKey(w)){
-//					scores[w]+=1.0
-//				}else{
-//					scores.put(w,1.0);
-//				}
-//
-//			}
-//
-//		}
+		//		for(String s:c){
+		//			if(s.length()<=5){
+		//				continue;
+		//			}
+		//			//expected+=Math.ceil(Math.sqrt(s.length()));
+		//			//get keywords from
+		//			Set<String> keywords=TFIDF(s);
+		//			println "Got keywords ${keywords}"
+		//			keywords.each{w->
+		//				if(scores.containsKey(w)){
+		//					scores[w]+=1.0
+		//				}else{
+		//					scores.put(w,1.0);
+		//				}
+		//
+		//			}
+		//
+		//		}
 		//approximate tfidf in a batch
 		String reg="";
 		for(String s:c){
 			reg=reg+s+"\n";
 		}
 		Set<String> keywords=TFIDF(reg);
-	log.debug "Got keywords ${keywords}"
+		log.debug "Got keywords ${keywords}"
 		keywords.each{w->
 			if(scores.containsKey(w)){
 				scores[w]+=1.0
@@ -131,7 +136,7 @@ class SepManager {
 			}
 
 		}
-		
+
 		//sort by wordcount
 		scores=scores.sort { a, b -> b.value <=> a.value };
 		//return first K elements
@@ -145,13 +150,88 @@ class SepManager {
 			if(count>=number)
 				break;
 		}
-		
+
 		//filter the useless
 		results=KeywordFilter.filterList(results);
 		return results;
-
 	}
-
+	//merge I/O and get keywords in a batch
+	public Map batchKeywords(List<Weibo> weibos){
+		//initialize jobid
+		long jobId=nextJobIndex();
+		
+		//initialize input file and flush inputs
+		String inputPath=PathManager.keywordFileTempBase+"\\${jobId}input.txt";
+		File inputFile=new File(inputPath);
+		String reg='';
+		for(int i=0;i<weibos.size();i++){
+			Weibo w=weibos[i];
+			String content;
+			if(w.isForwarded){
+				content=w.content+"//"+w.orgContent;
+			}else{
+				content=w.content;
+			}
+			if(i==0)
+				reg=content;
+			else{
+				reg=reg+'\n'+content;
+			}
+			//flush to file when you have a hundred
+			if(i>0&&i%100==0){
+				log.debug "Reached i=${i}. Flush";
+				inputFile.append(reg,'utf-8');
+				reg='';
+			}
+		}
+		//last flush to clear the register
+		inputFile.append(reg,'utf-8');
+		reg='';
+		log.debug "Flushed the last batch to file ${inputPath}.";
+		
+		//initialize output file
+		String outputTFIDF=PathManager.keywordFileTempBase+"\\${jobId}jiebaTFIDF.txt";
+		File tfidf=new File(outputTFIDF);
+		tfidf.write("",'utf-8');
+		String outputTR=PathManager.keywordFileTempBase+"\\${jobId}jiebaTextRank.txt";
+		File tr=new File(outputTR);
+		tr.write("",'utf-8');
+		//call python script
+		PythonCaller.largeFileKeyword(inputFile,tr,tfidf);
+		//get the output
+		List trWords=FileVisitor.readCsvFile(tfidf);
+		List tfidfWords=FileVisitor.readCsvFile(tr);
+		
+		//format the keywords
+		LinkedHashMap<String,Double> keywordOdds=new LinkedHashMap<>();
+		trWords.each{lineList->
+			lineList.each{it->
+				callIncrement(keywordOdds,it,0.506);
+			}
+		}
+		tfidfWords.each{lineList->
+			lineList.each{it->
+				callIncrement(keywordOdds,it,0.483);
+			}
+		}
+		
+		//improve the results
+		int maxWords=100;
+		log.debug "Raw keywords without organizing: "+keywordOdds;
+		keywordOdds=improveKeywords(keywordOdds);
+		def results=getResults(keywordOdds,maxWords);
+		//results=removeNegationWords(results);
+		
+		//cleanup output files
+		if(tr.delete()==false){
+			log.error "Task ${jobId} Failed to clean up jieba textrank output.";
+		}
+		if(tfidf.delete()==false){
+			log.error "Task ${jobId} Failed to clean up jieba tfidf output.";
+		}
+		
+		return results;
+	}
 	//filter out useless contents
 	public static String filter(String s){
 		if(s==null)
@@ -159,55 +239,13 @@ class SepManager {
 		//filter out the usernames, numbers and urls
 		return s.replaceAll("@[\\u4e00-\\u9fa5a-zA-Z\\-_0-9]+", "").replaceAll(Patterns.URL.reg(),"").replaceAll("\\d+"," ");
 	}
-	//entrance of separation
-	public extractKeywords(String s){
-		s=filter(s);
-		//the expected number of keywords is around the sqrt of length
-		int num=Math.ceil(Math.sqrt(s.length()));
-		if(num<=2){
-			log.debug "String is too short for any keywords!"
-			return [:];
-		}
-
-		//renew the map
-		LinkedHashMap<String,Double> keywordOdds=new LinkedHashMap<>();
-
-		//assign job id to python jobs
-		long jobId=nextJobIndex();
-
-		//pass to python script
-		PythonCaller.call(s,jobId);
-		String tfidfPath=base+"temp\\${jobId}jiebaTFIDF.txt";
-		File jiebaTFIDF=new File(tfidfPath);
-		if(!jiebaTFIDF.exists()){
-			log.error "File not found: ${tfidfPath}";
-		}else{
-			jiebaTFIDF.withReader('UTF-8'){
-				jiebaTFIDF.readLines().each {
-					callIncrement(keywordOdds,it,0.483);
-				}
-			}
-		}
-		String trPath=base+"temp\\${jobId}jiebaTextRank.txt";
-		File jiebaTextrank=new File(trPath);
-		if(!jiebaTextrank.exists()){
-			log.error "File not found: ${trPath}";
-		}else{
-			jiebaTextrank.withReader('UTF-8'){
-				jiebaTextrank.readLines().each{
-					//println it;
-					callIncrement(keywordOdds,it,0.506);
-				}
-			}
-		}
-
-		//store raw keywords
-		log.debug "Raw keywords without organizing."
-		log.debug keywordOdds;
+	//filter keywords and improve results
+	public Map improveKeywords(Map<String,Double> keywordOdds){
+		log.debug "Improve ${keywordOdds.size()} raw keywords.";
 		//filter out stop words
 		HashSet<String> useless=new HashSet<>();
 		keywordOdds.each{
-			if(uselessWords.contains(it.key))
+			if(KeywordFilter.isUselessWord(it.key))
 				useless.add(it.key);
 		}
 		useless.each{
@@ -217,12 +255,15 @@ class SepManager {
 		//return only the top results
 		log.debug "Sorting...";
 		keywordOdds=keywordOdds.sort { a, b -> b.value <=> a.value };
-
+		
+		return keywordOdds;
+	}
+	//remove negation words
+	public Map removeNegationWords(Map keywords,String s){
 		//check if negation words exist before return
 		HashMap<String,Double> toRemove=new HashMap<>();
 		HashMap<String,Double> toAdd=new HashMap<>();
-		def results=getResults(keywordOdds,num);
-		results.each{key,value->
+		keywords.each{key,value->
 			//find all occurrence of keyword in string
 			for (int index = s.indexOf(key);
 			index >= 0;
@@ -233,7 +274,6 @@ class SepManager {
 					String n1=s.substring(index-1,index);
 					//replace the keyword with its opposite
 					if(negation1.contains(n1)){
-
 						toRemove.put(key,value);
 						toAdd.put(n1+key,value);
 					}
@@ -243,7 +283,6 @@ class SepManager {
 					String n2=s.substring(index-2,index);
 					//replace the keyword with its opposite
 					if(negation2.contains(n2)){
-
 						toRemove.put(key,value);
 						toAdd.put(n2+key,value);
 					}
@@ -258,14 +297,76 @@ class SepManager {
 					}
 				}
 			}
-
 		}
 		toRemove.each{
-			results.remove(it.key);
+			keywords.remove(it.key);
 		}
 		toAdd.each{
-			results.put(it.key, it.value);
+			keywords.put(it.key, it.value);
 		}
+		return keywords;
+	}
+	//entrance of separation
+	public Map extractKeywords(String s){
+		s=filter(s);
+		//the expected number of keywords is around the sqrt of length
+		int num=Math.ceil(Math.sqrt(s.length()));
+		if(num<=2){
+			log.debug "String is too short for any keywords!"
+			return [:];
+		}
+
+		//renew the map
+		LinkedHashMap<String,Double> keywordOdds=new LinkedHashMap<>();
+
+		//assign job id to python jobs
+		long jobId=nextJobIndex();
+
+		//put files in a large scope
+		File jiebaTFIDF;
+		File jiebaTextrank
+		try{
+			//pass to python script
+			PythonCaller.call(s,jobId);
+			String tfidfPath=base+"temp\\${jobId}jiebaTFIDF.txt";
+			jiebaTFIDF=new File(tfidfPath);
+			if(!jiebaTFIDF.exists()){
+				log.error "File not found: ${tfidfPath}";
+			}else{
+				jiebaTFIDF.withReader('UTF-8'){
+					jiebaTFIDF.readLines().each {line->
+						def parts=line.split(',');
+						parts.each{word->
+							callIncrement(keywordOdds,word,0.483);
+						}
+					}
+				}
+			}
+			String trPath=base+"temp\\${jobId}jiebaTextRank.txt";
+			jiebaTextrank=new File(trPath);
+			if(!jiebaTextrank.exists()){
+				log.error "File not found: ${trPath}";
+			}else{
+				jiebaTextrank.withReader('UTF-8'){
+					jiebaTextrank.readLines().each{line->
+						def parts=line.split(',');
+						parts.each{word->
+							callIncrement(keywordOdds,word,0.506);
+						}						
+					}
+				}
+			}
+		}catch(Exception e){
+			log.error "An exception in keyword extraction!";
+			e.printStackTrace();
+			
+		}
+		//store raw keywords
+		log.debug "Raw keywords without organizing: "+keywordOdds;
+		keywordOdds=improveKeywords(keywordOdds);
+
+		def results=getResults(keywordOdds,num);
+		results=removeNegationWords(results,s);
 
 		//cleanup output files from jieba
 		if(jiebaTextrank.delete()==false){
@@ -289,7 +390,6 @@ class SepManager {
 			if(i>=number){
 				//log.debug "Task final keywords: "+result;
 				return result;
-
 			}
 			i++;
 		}
@@ -497,21 +597,21 @@ class SepManager {
 	//		return result;
 	//	}
 
-	//obsoleted with jcseg
-	public void prepareJcseg(){
-		configPath=base+"conf/jcseg.properties";
-		config = new JcsegTaskConfig(configPath);
-		dic = DictionaryFactory.createDefaultDictionary(config);
-		seg = SegmentFactory.createJcseg(JcsegTaskConfig.COMPLEX_MODE, config, dic);
-
-		//load useless words
-		File stopWords=new File(uselessWordPath);
-		String[] useless=stopWords.readLines();
-		useless.each {
-			uselessWords.add(it);
-		}
-		log.debug "SeparatorManager initialized with "+uselessWords.size()+" words filtered."
-	}
+	/*obsoleted with jcseg*/
+//	public void prepareJcseg(){
+//		configPath=base+"conf/jcseg.properties";
+//		config = new JcsegTaskConfig(configPath);
+//		dic = DictionaryFactory.createDefaultDictionary(config);
+//		seg = SegmentFactory.createJcseg(JcsegTaskConfig.COMPLEX_MODE, config, dic);
+//
+//		//load useless words
+//		File stopWords=new File(uselessWordPath);
+//		String[] useless=stopWords.readLines();
+//		useless.each {
+//			uselessWords.add(it);
+//		}
+//		log.debug "SeparatorManager initialized with "+uselessWords.size()+" words filtered."
+//	}
 
 	//obsoleted because of using jcseg
 	//	public ArrayList<String> obsoleteSeparate(String str){
@@ -532,21 +632,22 @@ class SepManager {
 	//		log.debug "Segmentation complete with "+result.size+" segments.";
 	//		return result;
 	//	}
+	
 	public ArrayList<ArrayList<String>> parallelSeg(ArrayList<String> contents){
 		//decide process number
 		int siz=contents.size();
 		int processNum;
 		if(siz<10)
 			processNum=1;
-		else if(siz<50)
-			processNum=5;
+		else if(siz<100)
+			processNum=2;
 		else
-			processNum=10;
+			processNum=5;
 		log.info "${siz} items in contents for ${processNum} processes.";
 		//initialize a map to store all results
 		ConcurrentMap<Integer,ArrayList<String>> resultMap=new ConcurrentSkipListMap<Integer,ArrayList<String>>();
 		PromiseList promises=new PromiseList();
-		
+
 		//define job
 		def seg={missionId,mission,start,end->
 			log.info "Mission ${missionId} has ${mission.size()} items to segment.";
@@ -568,11 +669,72 @@ class SepManager {
 				bags.add(wordbag);
 				//store the results in concurremt map
 				resultMap.put(j,wordbag);
-				
+
 			}
 			return bags;
 		}
 		
+		def newSeg={missionId,mission,start,end->
+			log.info "Mission ${missionId} has ${mission.size()} items to segment.";
+			ArrayList<ArrayList<String>> bags=new ArrayList<>();
+			long jobId=SepManager.getSepManager().nextJobIndex();
+			log.debug "Segment job index:${jobId}";
+			String inputPath=PathManager.segFileTempBase+"\\${jobId}segInput.txt";
+			log.debug "Segment file at ${inputPath}";
+			File inputFile=new File(inputPath);
+			inputFile.write("","utf-8");
+			//ensure output file exists
+			String outputPath=PathManager.segFileTempBase+"\\${jobId}segOutput.txt";
+			File outputFile=new File(outputPath);
+			outputFile.write("",'utf-8');
+			//output to file
+			int taskCount=0;
+			String reg="";
+			for(int j=start;j<end;j++){
+				//log.debug "Process index ${j} in contents.";
+				int index=j-start;
+				Weibo w=mission[j-start];
+				String taskContent;
+				if(w.isForwarded){
+					taskContent=w.content+"//"+w.orgContent;
+				}else{
+					taskContent=w.content;
+				}
+				//filter
+				taskContent=KeywordFilter.filterUrl(taskContent);
+				if(j==start)
+					reg=taskContent;
+				else
+					reg=reg+'\n'+taskContent;
+				taskCount++;
+				if(taskCount%100==0){
+					log.debug "Piled 100 files. Flush to file.";
+					inputFile.append(reg,'utf-8');
+					reg='';
+				}
+			}
+			log.debug "Last flush to file.";
+			inputFile.append(reg,'utf-8');
+			reg='';
+			log.debug "Finished flushing ${taskCount} weibo items.";
+			//python segment
+			def wordbags=PythonCaller.batchSeg(inputFile,outputFile);
+			//check size
+			if(wordbags.size()!=taskCount){
+				log.error "Task count not matching! ${taskCount} tasks written to file yet ${wordbags.size()} got.";
+			}
+			//put into map
+			for(int j=start;j<end;j++){
+				int index=j-start;
+				def wordbag=wordbags[index];
+				if(wordbag==null){
+					continue;
+				}
+				resultMap.put(j,wordbag);
+			}
+			return bags;
+		}
+
 		//generate separated training sets and assign them to promises
 		int taskNum=siz/processNum;
 		def missions=[];
@@ -585,25 +747,25 @@ class SepManager {
 				end=i*taskNum+taskNum;
 			def mission=contents.subList(start,end);
 			//create new promise
-			Promise p=task{seg(i,mission,start,end)}
+			Promise p=task{newSeg(i,mission,start,end)}
 			if(p==null)
 				log.info "Promise is null!";
 			else
 				log.info "Create promise on ${start} to ${end} of contents.";
 			promises.add(p);
 		}
-		
+
 		//error handling
 		promises.onError{Throwable t->
 			log.error "Got error in parallel keyword extraction in clustering.";
 			t.printStackTrace();
-			
+
 		}
-		
+
 		Collection results;
 		results=promises.get();
 		//report
-		log.debug "Finished parallel segmentation: "+resultMap;
+		log.debug "Finished parallel segmentation. ";
 		//check the results from resultmap
 		HashSet<Integer> missed=new HashSet<>();
 		ArrayList<ArrayList<String>> finalWordbags=new ArrayList<>();
@@ -615,10 +777,12 @@ class SepManager {
 				finalWordbags.add(resultMap[k]);
 			}
 		}
-		log.info "All missed numbers are: "+missed;
-		
+		if(missed.size()>0){
+			log.error "All missed numbers are: "+missed;
+		}
+
 		return finalWordbags;
-		
+
 	}
 	//To test and compare the performance of segmentation services
 	public static void main(String[] args){

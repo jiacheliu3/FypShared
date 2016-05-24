@@ -1,12 +1,45 @@
 package toolkit
 
 import groovy.util.logging.Log4j
+import input.Patterns
+
+import java.util.regex.Matcher;
+import java.util.regex.Pattern
 
 import org.jsoup.nodes.Document
+import org.jsoup.nodes.Element
 
 @Log4j
 class DocumentChecker {
 
+	public static String getUserIdFromPage(Document doc){
+		if(doc==null){
+			log.debug "Document of user homepage is null!";
+			return null;
+		}
+		
+		def elements=doc.select("div[class=c] a[href~=comment]");
+		log.debug "Found ${elements.size()} candidate links that contain the user id.";
+		String uid;
+		boolean found=false;
+		Pattern idPattern=Pattern.compile("uid=\\d{9,10}");
+		Pattern numPattern=Pattern.compile("\\d{9,10}");
+		for(int i=0;i<elements.size()&&found==false;i++){
+			Element link=elements[i];
+			String href=link.attr("href");
+			Matcher m=idPattern.matcher(href);
+			if(m.find()){
+				String here=m.group();
+				Matcher inner=numPattern.matcher(here);
+				if(inner.find()){
+					uid=inner.group();
+					log.info "Found user id ${uid}!";
+					found=true;
+				}
+			}
+		}
+		return uid;
+	}
 	//check whether a string is a valid html element, return if valid
 	public static boolean validateHtmlElement(String element){
 

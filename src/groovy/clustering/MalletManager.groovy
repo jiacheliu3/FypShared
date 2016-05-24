@@ -103,9 +103,9 @@ class MalletManager {
 
 		//have a try auto decrease number of clusters
 		while(clusterReg==null&&k>minK){
-			log.info "Decrease number of clusters.";
+			log.debug "Decrease number of clusters.";
 			k--;
-			log.info "Now k is ${k}";
+			log.debug "Now k is ${k}";
 			kkk=new KMeans(new Noop(), k, new NormalizedDotProductMetric());
 			clusterReg=kkk.cluster(instances);
 		}
@@ -118,7 +118,7 @@ class MalletManager {
 			log.info "No centroids retrieved.";
 			return;
 		}else{
-			log.info "Centroids generated are "+mmm;
+			log.debug "Centroids generated are "+mmm;
 			//get rid of duplicate centroids
 			mmm=removeDupCentroids(mmm);
 			if(centroids==null)
@@ -129,11 +129,11 @@ class MalletManager {
 		if(clustering==null||needManualAssignment==true){
 			log.info "No clustering got from Kmeans. Need to enter manual assignment.";
 			int[] clusterLabels=assignLabels(instances,mmm);
-			log.debug "Cluster assignment is "+clusterLabels;
+			//log.debug "Cluster assignment is "+clusterLabels;
 			clustering=new Clustering(instances, mmm.size(), clusterLabels )
 		}
 		else{
-			log.debug "Clustering got: "+clustering;
+			//log.debug "Clustering got: "+clustering;
 		}
 
 

@@ -5,6 +5,7 @@ import network.Network.Link
 import network.Network.Node
 import codebigbrosub.Job
 import codebigbrosub.User
+import crawler.UserManager
 
 @Log4j
 class ComplexNetworkGenerator {
@@ -12,6 +13,17 @@ class ComplexNetworkGenerator {
 	public ComplexNetworkGenerator(Job job){
 		this.job=job;
 		log.debug "Set job reference in ComplexNetworkGenerator.";
+	}
+	//essentially what's done in the deep network generation, get user centered sub-networks and merge
+	public Network expandNetwork(Network core,List<User> users){
+		users.each{theUser->
+			log.info "Generating sub-network centered at user ${theUser?.weiboName}";
+			Network sub=generateShallowFullNetwork(theUser);
+			deepMergeNetwork(core,sub);
+		}
+		core.debrief();
+		log.info "${users.size()} subnetworks are merged into the core.";
+		return core;
 	}
 	//calculate the four kinds of interactions as the same and count the weight on each link
 	public Map generateDeepFullNetwork(User u){
@@ -31,7 +43,7 @@ class ComplexNetworkGenerator {
 		log.info "Found ${friends.size()} users connected to this subject. ";
 		friends.each{theName->
 			//get the user by name
-			User v=callTheUser(theName);
+			User v=UserManager.retrieveUser(theName);
 			if(v==null){
 				log.info "No network known for this user";
 			}else{
@@ -71,6 +83,7 @@ class ComplexNetworkGenerator {
 
 		//generate network
 		Network simpleNetwork=new Network();
+		simpleNetwork.ownerName=userName;
 		//put user in first
 		Node userNode=new Node(name:userName,group:group);
 		simpleNetwork.addNode(userNode);
@@ -127,7 +140,7 @@ class ComplexNetworkGenerator {
 
 		friends.each{theName->
 			//get the user by name
-			User v=callTheUser(theName);
+			User v=UserManager.retrieveUser(theName);
 			if(v==null){
 				log.info "No network known for this user";
 			}else{
@@ -166,6 +179,7 @@ class ComplexNetworkGenerator {
 
 		//generate network
 		Network simpleNetwork=new Network();
+		simpleNetwork.ownerName=userName;
 		//put user in first
 		Node userNode=new Node(name:userName,group:1);
 		simpleNetwork.addNode(userNode);
@@ -215,7 +229,7 @@ class ComplexNetworkGenerator {
 		def cliques=cf.findClique(network);//a list of cliques
 
 		//assign the nodes in network to groups
-		int group=2;//keep group 1 for the general users that are not in any cliques
+		int group=5;//keep group 1 for the general users that are not in any cliques
 		cliques.each{clique->
 			log.info "Assigning group number ${group} to clique ${clique}";
 			for(int i=0;i<clique.size();i++){
@@ -256,16 +270,6 @@ class ComplexNetworkGenerator {
 		println("friends of ${u.weiboName} are "+friends);
 		return friends;
 	}
-	public User callTheUser(String name){
-		User u;
-		User.withTransaction{
-			u=User.find("from User as u where u.weiboName=?",[name]);
-		}
-		if(u==null){
-			log.info "User ${name} doesn't exist in the records.";
-		}
-		return u;
-	}
 	//get the users who have reposted/commented/liked/mentioned the user
 	public Set<String> getOutLinkSet(User u){
 		HashSet<String> friends=new HashSet<>();
@@ -277,7 +281,7 @@ class ComplexNetworkGenerator {
 		return friends;
 	}
 	//get the users who have been reposted/commented/liked/mentioned by the user
-	public Set getInLinkSet(User u){
+	public Set<String> getInLinkSet(User u){
 		HashSet<String> friends=new HashSet<>();
 		friends.addAll(u.forwarded?.keySet());
 		friends.addAll(u.commented?.keySet());
@@ -339,7 +343,7 @@ class ComplexNetworkGenerator {
 			}else{
 				try{
 					value=Integer.parseInt(v);
-					
+
 				}catch(ClassCastException e){
 					log.error "Cannot cast value ${v}(${v.class}) to Integer!";
 					value=null;

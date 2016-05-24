@@ -19,6 +19,7 @@ import static toolkit.JobLogger.jobLog
 @Log4j
 class NetworkGenerator {
 
+	/* These two paths are not really used. */
 	static String base="C:\\Users\\jiacheliu3\\git\\projects\\CodeBigBro\\";
 	static String userBase=base+"userFiles\\";
 
@@ -72,7 +73,7 @@ class NetworkGenerator {
 			}
 		}
 		//report support
-		log.info "Support from users is:"+support;
+		//log.info "Support from users is:"+support;
 		return support;
 	}
 	public static userWeiboCrawlHK(User u,List<Weibo> weibos){
@@ -181,14 +182,13 @@ class NetworkGenerator {
 		log.debug "Final support after sorting is:"+newSupport;
 
 		return newSupport;
-
 	}
-	public studyPatterns(){
+	public studyPatterns(String userName){
 		if(patternMiner==null){
 			log.error "Pattern miner is not initialized.";
 			return null;
 		}
-		def result=patternMiner.studyPatterns();
+		def result=patternMiner.studyPatterns(userName);
 		jobLog(job.id,"Pattern mining is complete. The found patterns are: ");
 		jobLog(job.id,result.toString());
 		return result;

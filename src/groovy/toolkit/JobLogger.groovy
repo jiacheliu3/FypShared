@@ -6,7 +6,7 @@ import groovy.util.logging.Log4j
 class JobLogger {
 
 	//save the log
-	static String logBase="D:/fyplog/temp/";
+	static String logBase=PathManager.jobLogTempFolder;//but nothing is actually saved here
 	static Map<Long,List> logRepo=new HashMap<>();
 	
 	//instead of writing log to files, store in memory, need to swap to I/O type when the user size grows

@@ -4,6 +4,7 @@ import groovy.util.logging.Log4j
 import java.util.regex.Matcher
 import java.util.regex.Pattern
 
+import toolkit.PathManager
 import cc.mallet.pipe.CharSequence2TokenSequence
 import cc.mallet.pipe.Pipe
 import cc.mallet.pipe.SerialPipes
@@ -21,7 +22,7 @@ import codebigbrosub.Weibo
 @Log4j
 class LDAManager {
 	public static void generateFile(){
-		String base="C:/zone/fyplog";
+		String base=PathManager.ldaTempPath;
 		String path=base+"/tag.txt";
 		File tagFile=new File(path);
 		if(tagFile.exists()){
@@ -31,14 +32,13 @@ class LDAManager {
 		}
 		tagFile.createNewFile();
 		tagFile.write("",'utf-8');
-		
 	}
 	public static topicFlow(def wordbags){
 		//def instances=feedFromWeibo(weibos);
 		def instances=feedFromSegments(wordbags);
 		
 		//decide number of topics
-		int numTopics=20;//set to 20 by default
+		int numTopics=5;//set to 20 by default
 		def topics=extractTopics(instances,numTopics);
 		
 		return topics;
@@ -272,7 +272,7 @@ class LDAManager {
 		Map<String,Integer> words;
 	}
 	public static void main(String[] args){
-		def instances=readChineseFile('C:/zone/fyplog/topics/testOut.txt');
+		def instances=readChineseFile('C:/zone/fyplog/topics/testOut.txt');//just a file with Chinese in it, utf-8 encoded
 		extractTopics(instances,6);
 //		regexTest(new String("hello/ / 參加 女兒 畢業 巡遊 典禮 [ 爱 你 ]   [ 位置 ] Kingdon   St ".getBytes(),'utf-8'));
 //		regexTest(new String(" 吏部 尚書榮公 （ 榮伯軒 ） … … “ 官場 浮世 繪 ” ".getBytes(),'utf-8'));

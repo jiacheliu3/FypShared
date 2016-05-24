@@ -43,7 +43,7 @@ class WeiboCrawler {
 		}
 
 		/* Study the information first */
-		log.debug "The weibo is "+weibo.text();
+		//log.debug "The weibo is "+weibo.text();
 		String text=zone.text();
 
 
@@ -53,7 +53,7 @@ class WeiboCrawler {
 		def isForward={t->
 			//utf16 as unicode
 			if(t.startsWith('\u8f6c\u53d1\u4e86')){
-				log.debug "Got repost indicator";
+				//log.debug "Got repost indicator";
 				return true;
 			}else
 				return false;
@@ -70,7 +70,7 @@ class WeiboCrawler {
 			log.error "No comment zone found";//cannot continue if no comment zone?
 			return false;
 		}else{
-			log.debug "Found comment zone. Continue extracting data from weibo.";
+			//log.debug "Found comment zone. Continue extracting data from weibo.";
 		}
 
 		Element comment;
@@ -87,7 +87,7 @@ class WeiboCrawler {
 		log.info "Got id of this weibo "+weiboId+" at ${url}";
 		String repostComment;//greater scope for the sake of save
 		if(isRepost){
-			log.info "This weibo is repost. Extract @ from repost and content.";
+			//log.debug "This weibo is repost. Extract @ from repost and content.";
 			def alLDiv=weibo.select("div");
 			Element repostZone=weibo.select("div").get(2);
 			String repostText=repostZone.text();
@@ -111,13 +111,13 @@ class WeiboCrawler {
 			//store in the list
 			friends.add(atsRepost);
 			friends.add(atsContent);
-			log.info "Extracted friend links: ${atsRepost}, ${atsContent}";
+			//log.debug "Extracted friend links: ${atsRepost}, ${atsContent}";
 		}else{
-			log.info "This weibo is original. Extract @ from content.";
+			log.debug "This weibo is original. Extract @ from content.";
 			Elements atsContent=extractAtFromContent(zone);
 			boss.storeAts(atsContent);
 			friends.add(atsContent);
-			log.info "Extracted friend links ${atsContent}";
+			//log.debug "Extracted friend links ${atsContent}";
 		}
 
 		/* Persistence related work flow */
@@ -159,12 +159,12 @@ class WeiboCrawler {
 				Date d=getDateFromSpan(weibo);
 				dup.createdTime=d;
 				//save the change
-				log.debug "Adding date to existing weibo.";
+				//log.debug "Adding date to existing weibo.";
 				needsUpdate=true;
 			}
 			if(hasFullElement==false){
 				dup.fullElement=weibo.toString();
-				log.debug "Adding html element to existing weibo";
+				//log.debug "Adding html element to existing weibo";
 				needsUpdate=true;
 			}
 			//update the element
@@ -216,14 +216,15 @@ class WeiboCrawler {
 				Element orgOwnerSpan=weibo.select("div").get(1);
 				def reg=orgOwnerSpan.select("span[class=cmt]");
 				if(reg.size()==0){
-					log.debug "Org owner name span not located. ";
+					log.error "Org owner name span not located. ";
 				}else{
 					def nameSpanReg=reg.get(0).select("a");
 					if(nameSpanReg.size()==0){
 						log.debug "Org owner name span is found but no hyperlink element located.";
 					}else{
 						String orgName=nameSpanReg.get(0).text();
-						log.debug "Got org owner name ${orgName}";
+						//log.debug "Got org owner name ${orgName}";
+						
 						//orgOwnerName=getOrgOwnerName(weibo.text());
 						w.orgOwnerName=orgName;
 					}
@@ -305,7 +306,7 @@ class WeiboCrawler {
 	//simply extract all @s from the content
 	public Elements extractAtFromContent(Element zone){
 		Elements ats=zone.select("a");
-		log.debug "Extract ${ats.size()} @s from content";
+		//log.debug "Extract ${ats.size()} @s from content";
 		return ats;
 	}
 
@@ -313,16 +314,16 @@ class WeiboCrawler {
 
 		def timeHolder=weibo.select("span[class=ct]");
 		if(timeHolder.size()==0){
-			log.info "No date or time found.";
+			log.error "No date or time found: "+weibo.toString();
 			return null;
 		}else{
 			String timeSpan=timeHolder.get(0).text();
 			Date d=DateExtractor.extractDate(timeSpan);
 			if(d!=null){
-				log.info "Date ${timeSpan} matching format";
+				//log.debug "Date ${timeSpan} matching format";
 				return d;
 			}else{
-				log.debug "${timeSpan} is not a formatted date. Need to add to the date regex list!";
+				log.error "${timeSpan} is not a formatted date. Need to add to the date regex list!";
 				return null;
 			}
 		}
@@ -485,14 +486,14 @@ class WeiboCrawler {
 			}else{
 				likeBody=doc.body();
 				likeElement=likeBody.toString();
-				log.debug "Got like page "+likeBody.text();
+				//log.debug "Got like page "+likeBody.text();
 			}
 		}
 		else{
 			likeElement=w.likeElement;
 			try{
 				likeBody=Jsoup.parse(likeElement);
-				log.debug "Got like page from user field "+likeBody.text();
+				//log.debug "Got like page from user field "+likeBody.text();
 			}catch(Exception e){
 				log.error "Error parsing the like element of weibo ${w}";
 				e.printStackTrace();
@@ -554,7 +555,7 @@ class WeiboCrawler {
 				log.error "No forward page got. Cannot proceed.";
 			}else{
 				repostBody=doc.body();
-				log.debug "Got the repost body: "+repostBody.text();
+				//log.debug "Got the repost body: "+repostBody.text();
 				//store the element with the weibo
 				w.repostElement=repostBody.toString();
 				repostElement=repostBody.toString();
@@ -564,7 +565,7 @@ class WeiboCrawler {
 			repostElement=w.repostElement;//in string format
 			try{
 				repostBody=Jsoup.parse(repostElement);
-				log.debug "Got the repost body from user field: "+repostBody.text();
+				//log.debug "Got the repost body from user field: "+repostBody.text();
 			}catch(Exception e){
 				log.error "Error parsing the like element of weibo ${w}";
 				e.printStackTrace();
@@ -590,29 +591,29 @@ class WeiboCrawler {
 					Element f=forwards.get(i);
 					//log.debug "Content of this forward element is "+f;
 					String t=f.text();
-					println "Text of this element is"+ t;
+					//println "Text of this element is"+ t;
 					int index=t.indexOf(":");
 					int neg=t.indexOf("@");
 					if(index==-1||neg<index){
 						if(forwardStart){
-							println "Now reached the end of forwardings.";
+							//println "Now reached the end of forwardings.";
 							forwardEnd=true;
 						}else{
-							println "No forward in this one";
+							//println "No forward in this one";
 						}
 					}
 					else{
 						if(!forwardStart){
-							println "Now start the forward messages.";
+							//println "Now start the forward messages.";
 							forwardStart=true;
 						}
 						log.debug "Located : in text "+t;
 						String fName=t.substring(0,index).trim().replaceAll("\\?","");
 						if(fName.contains("\\u8f6c\\u53d1\\u4e86")||fName.contains(" ")){
-							println "Text ${fName} is not a user name. Dispose.";
+							///println "Text ${fName} is not a user name. Dispose.";
 						}
 						else{
-							println "User ${fName} forwarded this user's weibo.";
+							log.debug "User ${fName} forwarded this user's weibo.";
 							//record
 							//										u.forwarded.add(fName);
 							//										nameList.add(fName);
@@ -632,7 +633,7 @@ class WeiboCrawler {
 							else{
 								String fwn=fwt.substring(3,fwt.length()-1);
 
-								log.info "User has forwarded ${fwn}'s weibo.";
+								log.debug "User has forwarded ${fwn}'s weibo.";
 								if(!forwarding.containsKey(fName)){
 									forwarding.put(fName,1);
 								}else{

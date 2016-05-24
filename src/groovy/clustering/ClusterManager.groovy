@@ -6,6 +6,7 @@ import groovy.util.logging.Log4j
 import java.util.concurrent.*
 
 import segmentation.SepManager
+import toolkit.PathManager
 import cc.mallet.types.SparseVector
 import codebigbrosub.Job
 import codebigbrosub.User
@@ -13,7 +14,7 @@ import codebigbrosub.Weibo
 @Log4j
 class ClusterManager {
 
-	static String base="C:\\Users\\jiacheliu3\\git\\projects\\CodeBigBro\\";
+	static String base=PathManager.clusterBasePath;
 	ConcurrentMap<String,Integer> featureMap=new ConcurrentHashMap<>();
 	//Map<String,Integer> featureMap=new HashMap<>();
 	ArrayList<Weibo> trainingset=new ArrayList<>();
@@ -99,7 +100,8 @@ class ClusterManager {
 			vectors.add(vec);
 		}
 		KMeansManager km=new KMeansManager();
-		def clustering=km.kmeansPlus(vectors);
+
+		def	clustering=km.calculateKmeans(vectors);
 		if(clustering==null){
 			log.info "No clustering formed.";
 			return;
@@ -107,7 +109,7 @@ class ClusterManager {
 		log.info "Kmeans++ procedure finished. The final clustering is "+clustering;
 		def centroids=[];
 		centroids.addAll(clustering.keySet());
-		
+
 		ArrayList<String> tags=new ArrayList<>();
 		//ArrayList<>
 		centroids.each{
@@ -118,9 +120,9 @@ class ClusterManager {
 			log.info "Found tag ${tag}";
 			//tagMap.put(tag,values.toList());
 			tags.add(tag);
-
 		}
-		
+		log.info "Final tags are ${tags}";
+
 		/* Use mallet kmeans */
 		//calculate k means, return value is the means of each cluster
 		//		mm.kmeans();
@@ -150,14 +152,11 @@ class ClusterManager {
 		//		}
 		/* End of mallet zone */
 
-		log.info "Final tags are ${tags}";
-
-
 		wrapper.addCentroids(centroids);
 		wrapper.addTags(tags);
 		//wrapper.addClusters(clustering.getClusters());
 		wrapper.addClusters(clustering);
-		
+
 		//def clusterJson=JsonOutput.toJson(wrapper);
 		//log.info clusterJson;
 
@@ -170,8 +169,6 @@ class ClusterManager {
 
 		//match the microblogs back to tags
 		LinkedHashMap<Weibo,String> mappings=wrapper.matchWeiboToTags();
-
-
 		return mappings;
 	}
 	private  String findTagMatch(HashMap<String,ArrayList<Double>> tagMap,double[] vector){
@@ -198,7 +195,7 @@ class ClusterManager {
 	}
 
 	private  void storeClusters(ArrayList<SparseVector> clusters) {
-		File clusterOutput=new File("D:\\clusters.txt");
+		File clusterOutput=new File(PathManager.clusterStorageFile);
 		clusterOutput.write("",'utf-8');
 		clusters.each{
 			clusterOutput.append(it,'utf-8');
@@ -220,16 +217,15 @@ class ClusterManager {
 		return;
 	}
 	public String findTag(double[] values){
-		double bound=100.0;
-		def l=findMax(values,bound);
+		double bound=75.0;
+		def l=findMax(values,bound);//at most 10 indices
 		String tag="";
 		if(l.size()==1){
 			int index=l[0];
 			tag=featureMap.find{it.value==index+1}?.key;
-
 		}
 		else{
-			//at most 5 keywords
+			//at most 10 keywords
 			for(int i;i<l.size();i++){
 				Integer theIndex=l[i];
 				String yatag=featureMap.find{it.value==theIndex+1}?.key;
@@ -239,13 +235,21 @@ class ClusterManager {
 				//					tag+=yatag;
 				//				else
 				//					tag+=yatag+"+";
-				if(i==4){
+
+				//				if(i==4){
+				//					tag+=yatag;
+				//				}else if(i<4){
+				//					tag+=yatag+"+";
+				//				}else{
+				//					break;
+				//				}
+
+				if(i==l.size()-1){
 					tag+=yatag;
-				}else if(i<4){
-					tag+=yatag+"+";
 				}else{
-					break;
+					tag+=yatag+"/";
 				}
+
 			}
 		}
 		if(tag==""){
@@ -272,7 +276,7 @@ class ClusterManager {
 			wordbags=SepManager.getSepManager().parallelSeg(trainingset);//in the same order as traningset
 		}
 		else{
-			log.info "Weibo items have been pre-processed before feeding to cluster study.";
+			//log.info "Weibo items have been pre-processed before feeding to cluster study.";
 		}
 
 		//generate vector map
@@ -294,7 +298,7 @@ class ClusterManager {
 					}
 				}
 			}
-			log.info "Subtask ${i} Finished generating data instance ${values}";
+			//log.debug "Subtask ${i} Finished generating data instance ${values}";
 			//add into vectors
 			vectorMap.put(i,values.toList());
 			mm.addData(values);
@@ -305,7 +309,8 @@ class ClusterManager {
 		}
 
 		log.debug "Vector generation finished.";
-		log.debug vectorMap;
+		//log.debug vectorMap;
+
 		//log.debug "Cluster wrapper now: "+wrapper.reportVectorMapping();
 		//log.debug "Mallet now has data: "+mm;
 		//			for(int i=0;i<trainingset.size();i++){
@@ -356,27 +361,54 @@ class ClusterManager {
 		return dimension
 	}
 	public  findMax(double[] values,double bound){
-		double max=-100;
-		int index=-1;
-		def l=[];
-		for(int i=0;i<values.length;i++){
-			if(values[i]>max){
-				index=i;
-				max=values[i];
-				l.size=0;
-			}
-			else if(values[i]==max){
-				l.add(i);
-			}
+		/* deprecated */
+//		double max=-100;
+//		int index=-1;
+//		def l=[];
+//		for(int i=0;i<values.length;i++){
+//			if(values[i]>max){
+//				index=i;
+//				max=values[i];
+//				l.size=0;
+//			}
+//			else if(values[i]==max){
+//				l.add(i);
+//			}
+//			//keep the value even if it's below max
+//			else if(values[i]>=bound){
+//				l.add(i);
+//			}
+//		}
+//		if(l.size()==0){
+//			l.add(index);
+//		}
+//		else{
+//			log.debug "${l.size()} dimensions activated.";
+//		}
+//		log.info "Max is index ${l} with value ${max}";
+//		return l.sort();
+		
+		//put into a map to preserve the order
+		def orderMap=[:];
+		for(int i=0;i<values.size();i++){
+			orderMap.put(values[i],i);
 		}
-		if(l.size()==0){
-			l.add(index);
+		orderMap=orderMap.sort {-1*it.key};//sort in desc order
+		def kept=[];
+		int toKeep=10;
+		for(def e:orderMap){
+			def thing=e.key;
+			if(thing>=bound)
+				kept.add(orderMap[thing]);//keep the index
+			else if(kept.size()<toKeep){
+				//keep the thing if there is any value
+				if(thing>0)
+					kept.add(orderMap[thing]);
+			}else if(kept.size()>toKeep){
+				break;
+			}else{}
 		}
-		else{
-			log.debug "${l.size()} dimensions activated.";
-		}
-		log.info "Max is index ${l} with value ${max}";
-		return l.sort();
+		return kept;
 	}
 	//	public  Instance findMean(Dataset d,int columnNum){
 	//		int size=d.size();

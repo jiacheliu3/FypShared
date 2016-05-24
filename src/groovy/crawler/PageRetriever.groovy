@@ -2,6 +2,7 @@ package crawler
 
 import groovy.util.logging.Log4j
 
+import org.jsoup.HttpStatusException
 import org.jsoup.Jsoup
 import org.jsoup.nodes.Document
 
@@ -42,6 +43,10 @@ class PageRetriever {
 						break;
 					}
 				}
+			}catch(HttpStatusException e){
+				log.error "Http status error fetching page ${url}";
+				e.printStackTrace();
+				continue;
 			}catch(SocketTimeoutException e){
 				log.error "Fetch reposts time-out for the ${count}th try";
 				continue;
@@ -50,6 +55,7 @@ class PageRetriever {
 				continue;
 			}catch(Exception e){
 				e.printStackTrace();
+				continue;
 			}
 			//sleep 1 second
 			//waitASecond();

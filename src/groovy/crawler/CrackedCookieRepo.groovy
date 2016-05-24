@@ -28,12 +28,12 @@ class CrackedCookieRepo {
 		//		data["SUHB"]="08JrN0xnw_LcLe";
 		//		data["_T_WM"]="be3b90897a3f231a69328f70b4a44ac4";
 		//		data["gsid_CTandWM"]="4uS6CpOz58HrY6LJuqVx4nyBA80";
-		data["SSOLoginState"]="1454156630";
-		data["SUB"]="_2A257qNsGDeTxGeNI6lYU9y7IwjqIHXVZUuVOrDV6PUJbstBeLVHSkW1LHetGNW65weMQtkrLoqSsOxFAxKw8FQ..";
+		data["SSOLoginState"]="1460784675";
+		data["SUB"]="_2A256Fb5zDeTxGeNI6lYU9y7IwjqIHXVZ-cI7rDV6PUJbstBeLUOlkW1LHeteRnhZoZdXHEDelQnSVqul9R5OxA..";
 		data["SUBP"]="0033WrSXqPxfM725Ws9jqgMF55529P9D9W52ck6hPOverwBC8pj1Tvjq5JpX5o2p";
-		data["SUHB"]="0FQ7X4KQ1qAK3";
-		data["_T_WM"]="3ce3f486d6626a0af3b169817495bf7a";
-		data["gsid_CTandWM"]="4u6MCpOz5vXl3pV7UsW4mnyBA80";
+		data["SUHB"]="0U1ZjnLIMOK5qq";
+		data["_T_WM"]="8683f45e19ed8da1dcd295e7f9d950d0";
+		data["gsid_CTandWM"]="4ugMCpOz5uweIehx8xAAZnyBA80";
 		data["mobile"]='theia_fq@163.com';
 		if(useful(data)){
 			allCookies.put(new CrackedCookie(data),new Boolean(true));
@@ -121,12 +121,13 @@ class CrackedCookieRepo {
 				}
 
 			}
-			log.info "The status is ${isValid} for this cookie. The content of page is "+doc.text();
+			//log.info "The status is ${isValid} for this cookie. The content of page is "+doc.text();
+			log.info "The status is ${isValid} for this cookie. ";
 			if(!isValid){
 				notUseful.add(cc);
 			}
 		}
-		log.info "${notUseful.size()} cookies out of ${allCookies.size()} are not useful";
+		log.info "${notUseful.size()} cookies out of ${allCookies.size()} are NOT useful";
 		for(int j=0;j<notUseful.size();j++){
 			offYouGo(notUseful[j]);
 		}

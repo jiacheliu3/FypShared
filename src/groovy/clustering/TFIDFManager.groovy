@@ -2,10 +2,12 @@ package clustering
 import groovy.util.logging.Log4j
 import keyword.*
 import segmentation.SepManager
+import toolkit.PathManager
 
 @Log4j
 class TFIDFManager {
-	static String base="C:\\Users\\jiacheliu3\\git\\projects\\CodeBigBro\\";
+	static String base=PathManager.featureTempBase;
+	//static String base="C:\\Users\\jiacheliu3\\git\\projects\\CodeBigBro\\";
 	ArrayList<String> trainingSet=new ArrayList<>();
 	HashMap<String,Double> features=new HashMap<>();
 
@@ -29,13 +31,13 @@ class TFIDFManager {
 		
 		//use TFIDF provided by jieba
 		Set<String> keywords=SepManager.getSepManager().TFIDF(trainingSet,500);
-		log.debug "Keywords got for features:\n"+keywords;
+		log.debug "Keywords got from features.";
 		
 		//filter out useless stop words
 		keywords=KeywordFilter.filterList(keywords);
 		
 		//write to file
-		File features=new File(base+"weiboFeatures.txt");
+		File features=new File(base+"\\weiboFeatures.txt");
 		if(features.exists()){
 			features.withWriter('utf-8'){it.write("")}
 		}

@@ -15,15 +15,12 @@ import org.jsoup.nodes.Document
 import org.jsoup.nodes.Element
 import org.jsoup.select.Elements
 
-import cn.edu.hfut.dmic.webcollector.crawler.BreadthCrawler
-import cn.edu.hfut.dmic.webcollector.model.Links
-import cn.edu.hfut.dmic.webcollector.model.Page
-import cn.edu.hfut.dmic.webcollector.net.HttpResponse
+import toolkit.PathManager
 import codebigbrosub.Weibo
 
 public class UserWeiboCrawler{
 
-	static String base="C:\\Users\\jiacheliu3\\git\\projects\\CodeBigBro\\data\\";
+	static String base=PathManager.websiteCrawlerBase;
 	int counter=0;
 	File inputFile;
 	File outputFile;

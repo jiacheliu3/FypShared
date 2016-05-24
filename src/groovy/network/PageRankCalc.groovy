@@ -124,8 +124,9 @@ class PageRankCalc {
 				log.error "After scanning the whole map ${theName} is still not found.";
 			}
 		}
-		log.info "The weight matrix is: ";
-		log.info A.getArray().toString();
+		//log.info "The weight matrix is: ";
+		//log.info A.getArray().toString();
+		
 		//calculate the sum of weights
 		double totalWeight=0;
 		edges.each{edge->
@@ -171,8 +172,8 @@ class PageRankCalc {
 		}
 		//M.print(5,2);
 		log.info("Transition matrix complete.");
-		log.info "The transition matrix is: ";
-		log.info M.getArray().toString();
+		//log.debug "The transition matrix is: ";
+		//log.debug M.getArray().toString();
 		return M;
 
 	}
@@ -249,32 +250,15 @@ class PageRankCalc {
 			'b',
 			'c',
 			'd',
-			'e',
-			'f',
-			'g',
-			'h',
-			'i',
-			'j',
-			'k'
+			'e'
 		];
 		def set=[
-			['source':'b','target':'c','weight':1],
+			['source':'a','target':'b','weight':1],
+			['source':'b','target':'a','weight':10],
 			['source':'c','target':'b','weight':1],
-			['source':'d','target':'a','weight':1],
-			['source':'d','target':'b','weight':1],
-			['source':'e','target':'b','weight':1],
-			['source':'e','target':'d','weight':1],
-			['source':'e','target':'f','weight':1],
-			['source':'f','target':'b','weight':1],
-			['source':'f','target':'e','weight':1],
-			['source':'g','target':'b','weight':1],
-			['source':'g','target':'e','weight':1],
-			['source':'h','target':'b','weight':1],
-			['source':'h','target':'e','weight':1],
-			['source':'i','target':'b','weight':1],
-			['source':'i','target':'e','weight':1],
-			['source':'j','target':'e','weight':1],
-			['source':'k','target':'e','weight':1]
+			['source':'b','target':'c','weight':1],
+			['source':'d','target':'c','weight':1],
+			['source':'d','target':'e','weight':1]
 		];
 		Set<Map> edges=new HashSet<>();
 		edges.addAll(set);

@@ -83,13 +83,13 @@ class ClusterWrapper {
 		tags.addAll(t);
 	}
 	public void addClusters(InstanceList[] clustering){
-		log.info "Add clusters ${clustering.class}:${clustering}";
+		//log.info "Add clusters ${clustering.class}:${clustering}";
 		clustering.each{instanceList->
 			ArrayList<ArrayList<Double>> cluster=new ArrayList<>();
 
 			instanceList.each{instance->
 				def data=instance.getData();
-				log.debug "Data for instance: "+instance;
+				//log.debug "Data for instance: "+instance;
 				if(!data instanceof SparseVector){
 					log.error "Data is not an instance of SparseVector";
 				}
@@ -97,7 +97,7 @@ class ClusterWrapper {
 				double[] values=((SparseVector)data).getValues();
 				def vector=(ArrayList<Double>)values.toList();
 				cluster.add(vector);
-				log.debug "Add ${vector} to cluster";
+				//log.debug "Add ${vector} to cluster";
 
 			}
 			log.info "${cluster.size()} vectors in this cluster.";
@@ -171,9 +171,9 @@ class ClusterWrapper {
 		}
 		log.info "Finished generating the tag mapping report";
 		//check on the contents
-		mappings.each{weibo,tag->
-			log.debug "${weibo.content} has tag ${tag}";
-		}
+//		mappings.each{weibo,tag->
+//			log.debug "${weibo.content} has tag ${tag}";
+//		}
 
 		return mappings;
 

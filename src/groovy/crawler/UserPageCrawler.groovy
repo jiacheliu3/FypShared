@@ -118,6 +118,9 @@ class UserPageCrawler {
 		log.info "${uniqueLinks.size()} unique links to study";
 
 		def all=[:];
+		//study only 500 links
+		int stopAt=500;
+		int doneCount=0;
 		for(int i=0;i<uniqueLinks.size();i++){
 			Element link=uniqueLinks[i];
 			//check if the link is meaningful
@@ -128,6 +131,12 @@ class UserPageCrawler {
 				log.info "Url ${url} is not useful.";
 				continue;
 			}
+			//stop early
+			if(doneCount>=stopAt){
+				log.info "Reached limit of first ${stopAt} friends. Stop here.";
+				break;
+			}
+			doneCount++;
 			
 			Document doc;
 			//first check if user has html element
@@ -144,7 +153,7 @@ class UserPageCrawler {
 				doc=savedDoc;
 				needSave=false;
 			}
-			
+
 			def data=studyUserPage(doc);
 			//merge with all data
 			String name;
@@ -164,7 +173,7 @@ class UserPageCrawler {
 				}else{
 					log.info "No need to save the info page to user.";
 				}
-				
+
 			}else{
 				log.error "No name included in the study result.";
 				log.error data;
@@ -308,15 +317,15 @@ class UserPageCrawler {
 	}
 	public boolean saveUser(User u){
 		try{
-		u.merge(flush:true);
-		if(u.hasErrors()){
-			log.error "An error occurred saving the new user.";
-			log.error u.errors;
-			return false;
-		}else{
-			log.info "Saved the user.";
-			return true;
-		}
+			u.merge(flush:true);
+			if(u.hasErrors()){
+				log.error "An error occurred saving the new user.";
+				log.error u.errors;
+				return false;
+			}else{
+				log.info "Saved the user.";
+				return true;
+			}
 		}catch(NestedRuntimeException e){
 			log.error "Caught spring related exception saving the user.";
 			log.error e.getMessage();
@@ -338,7 +347,7 @@ class UserPageCrawler {
 		for(int i=0;i<zones.size();i++){
 			Element title=zones[i];
 			Element content=title.nextElementSibling();
-			log.info "Element zone ${title.text()} has content ${content.text()}";
+			//log.debug "Element zone ${title.text()} has content ${content.text()}";
 			//check if it's the element that's desired
 			if(content.attr("class")!='c'){
 				log.error "This content element does not conform to format!";
@@ -394,15 +403,30 @@ class UserPageCrawler {
 		def edu=[:];
 		def work=[:];
 		def workPeriod=[:];
-		
+
 		def tagNameMap=[:];
 
-		all.each{name,data->
+		//format a gender map storing the genders
+		def genderMap=["male":[],"female":[]];
+		
+		all.each{rawName,data->
+			//need trim?
+			String name=rawName.trim();
+			
 			def basic=data['basic'];
 			//aggregate gender count
 			def thisGender=basic["gender"];
 			String sex=convertGender(thisGender);
 			mapIncrement(gender,sex,1.0);
+			//put in the groups
+			if(sex=='male'){
+				genderMap["male"].add(name);
+			}else if(sex=="female"){
+				genderMap["female"].add(name);
+			}else{
+				log.error "Sex not recognized: "+sex;
+			}
+			
 			//aggregate age information
 			def thisBir=basic["birthday"];
 			def thisAge=convertAge(thisBir);
@@ -439,7 +463,7 @@ class UserPageCrawler {
 					authLong=thisAuth;
 				}
 			}
-			
+
 			//aggregate tags
 			def thisTags=basic["tags"];//list of string
 			thisTags.each{
@@ -471,16 +495,20 @@ class UserPageCrawler {
 				mapIncrement(workPeriod,p,1.0);
 			}
 		}
+		log.debug "Grouped users by gender: "+genderMap;
 
 		//format the ages
 		def formatAge=formatAge(age);
 
 		//format the geographical info
 		def formatGeo=formatGeo(geo);
-		
+
 		//format the tags
 		def formatTags=formatTag(tags,tagNameMap);
 		
+		//keep only the top 10 institutes and work places
+		def formatEdu=topK(edu);
+		def formatWork=topK(work);
 
 		//get keywords from intro repo
 		def introKeywords=SepManager.getSepManager().extractKeywords(introRepo);
@@ -495,8 +523,27 @@ class UserPageCrawler {
 		def intro=["introKeyword":introKeywords,"introLong":longestIntro,"introUser":introUser];
 		def auth=["authKeyword":authKeywords,"authLong":longestAuth,"authUser":authUser,"authCount":authCount];
 
+		
 
-		def result=['gender':gender,'age':formatAge,'geo':formatGeo,'tag':formatTags,'edu':edu,'work':work,'workPeriod':workPeriod,"auth":auth,"intro":intro,"allCount":all.size()];
+		def result=['gender':gender,'age':formatAge,'geo':formatGeo,'tag':formatTags,'edu':formatEdu,'work':formatWork,'workPeriod':workPeriod,"auth":auth,"intro":intro,"allCount":all.size(),"genderMap":genderMap];
+	}
+	public Map topK(Map data){
+		if(data.size()<=10){
+			log.debug "No need to filter the topk of data with size ${data.size()}.";
+			return data;	
+		}
+		 def sorted=data.sort { a, b -> b.value <=> a.value };
+		 int k=9;
+		 int count=0;
+		 def toReturn=[:];
+		 for(def e:sorted){
+			 if(count>=k){
+				 break;
+			 }
+			 toReturn.put(e.key,e.value);
+			 count++;
+		 }
+		 return toReturn;
 	}
 	//filter the tags avoiding too many outputs
 	public Map formatTag(Map tags,Map tagNameMap){
@@ -545,6 +592,7 @@ class UserPageCrawler {
 	}
 	public Map formatAge(Map age){
 		int unknownCount;
+		//remove age=0
 		if(age.containsKey("0")){
 			unknownCount=age["0"];
 			age.remove("0");
@@ -553,10 +601,26 @@ class UserPageCrawler {
 		age.each{k,v->
 			if(k=="0"){
 				log.error "The age 0 is not removed!";
-			}else{
-				log.debug "The age ${k} appeared ${v} times";
-				for(int i=0;i<v;i++){
-					knownCount.add(k);
+			}
+			else{
+				//log.debug "The age ${k} appeared ${v} times";
+
+				//parse age to int
+				def theAge;
+				if(k instanceof String)
+					theAge=Integer.parseInt(k);
+				else
+					theAge=k;
+				//remove age that is obviously not possible to be here
+				if(theAge<9){
+					log.debug "Ignore age ${theAge}";
+				}else if(theAge>90){
+					log.debug "Ignore age ${theAge}";
+				}
+				else{
+					for(int i=0;i<v;i++){
+						knownCount.add(k);
+					}
 				}
 			}
 		}

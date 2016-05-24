@@ -1,5 +1,6 @@
 
 package crawler
+import static toolkit.JobLogger.jobLog
 import groovy.util.logging.Log4j
 import input.Patterns
 
@@ -9,21 +10,23 @@ import java.util.concurrent.Future
 import java.util.regex.Matcher
 import java.util.regex.Pattern
 
+import network.ComplexNetworkGenerator
+
 import org.jsoup.Jsoup
-import org.jsoup.Connection.Method
-import org.jsoup.Connection.Response
 import org.jsoup.nodes.Document
 import org.jsoup.nodes.Element
 import org.jsoup.select.Elements
 
+import prediction.UserPredictor
 import toolkit.ConverterManager
 import toolkit.DocumentChecker
+import toolkit.UrlConverter
 import codebigbrosub.Job
 import codebigbrosub.User
 import codebigbrosub.Weibo
-import crawler.CrackedCookieRepo.CrackedCookie
 import crawler.UserPageCrawler.UserLink
-import static toolkit.JobLogger.jobLog
+
+import crawler.UserManager
 
 @Log4j
 class WeiboCrawlerMaster {
@@ -35,7 +38,8 @@ class WeiboCrawlerMaster {
 
 	UserPageCrawler userPageCrawler;
 	Elements foundFriends;
-	
+	Map genderMap;
+
 	Job job;//save a reference of job for the sake of logging
 	//
 	//	public void userWeiboCrawl(User u){
@@ -59,7 +63,7 @@ class WeiboCrawlerMaster {
 		this.job=job;
 		log.debug "Set job reference in WeiboCrawlerMaster";
 	}
-	public void crawlWeibo(def data){
+	public void crawlWeibo(def data){		
 		boolean gotInitPage=false;
 		//get known info
 		String userId=data["userId"];
@@ -113,7 +117,7 @@ class WeiboCrawlerMaster {
 			}else{
 				gotPage=true;
 			}
-			
+
 			if(gotPage){
 				//get basic info from the first page
 				def weiboEndHolder=doc.select("input[name=mp]");
@@ -141,7 +145,7 @@ class WeiboCrawlerMaster {
 		//crawl in a wrapped function
 		def args=["userId":userId,"userName":userName,"userUrl":url,"pageCount":pageCount,"accountCount":accountCount,"needSave":true,"fastMode":false];
 		parallelCrawlWeibo(args);
-		
+
 		//user hk entrance instead
 		//HKWeiboCrawlerMaster hkMaster=new HKWeiboCrawlerMaster(weiboName:userName,weiboId:userId);
 
@@ -172,9 +176,26 @@ class WeiboCrawlerMaster {
 		}
 
 	}
+	public Map studyUserStat(User u){
+		UserPageCrawler userCrawler=new UserPageCrawler();
+		//get user's info page
+		Document doc;
+		String url=u.url;
+		String toGo=UrlConverter.fillUrl(url);
+		doc=userCrawler.getUserPage(toGo);
+		log.info "Got the user info page:"+doc.title();
+		def stats=userCrawler.studyUserPage(doc);
 
+		return stats;
+	}
 	//study the user's friends based on their info pages
 	public Map studyStats(User u,List<Weibo> weibos,Job theJob){
+		//first gather stats of user himself
+		log.info "First study the statistics of target user.";
+		def userStat=studyUserStat(u);
+		log.info "Collected stat from the target user: "+userStat;
+
+
 		boolean needCrawl=false;
 		if(foundFriends==null){
 			log.info "No known friends info, need to crawl the weibo elements first";
@@ -192,12 +213,206 @@ class WeiboCrawlerMaster {
 		UserPageCrawler userCrawler=new UserPageCrawler();
 		def stats=userCrawler.studyLinkToUsers(foundFriends);
 		jobLog(job.id,"Aggregated statistics from the friends.");
-		return stats;
 
+		//calculate the probabilities depending on the user's stats
+		UserPredictor predictor=new UserPredictor(job);
+		def predictions=predictor.predictUser(userStat,stats);
+		log.info "Finished user predictions: "+predictions;
+		
+		//format the friends by gender and keep it in the register
+		genderMap=keepGenderMap(u.weiboName,predictions,stats);
+		log.info "The same/other gender interaction is stored.";
+
+		//format for return
+		def result=[:];
+		result.put("prediction",predictions);
+		result.put("friends",stats);
+		result.put("user",userStat);
+
+		return result;
+	}
+	//format the users by same/other gender with the target user
+	public Map keepGenderMap(String userName,Map predictions,Map friendStats){
+		log.debug "Formatting the friends by gender.";
+		
+		//format
+		Set<String> sameSex=new HashSet<>();
+		Set<String> diffSex=new HashSet<>();
+		//keep the user name first
+		sameSex.add(userName);
+		
+		def toKeep=["same":sameSex,"other":diffSex];
+		//get user gender first
+		def userGender=predictions["gender"];
+		String gender;
+		if(userGender.containsKey("male"))
+			gender="male";
+		else if(userGender.containsKey("female"))
+			gender="female";
+		else{
+			log.error "No gender found for user: "+userGender;
+			gender="female";
+		}
+		
+		//get friends group by gender
+		def genderReg=friendStats["genderMap"];
+		if(genderReg==null||genderReg.size()==0){
+			log.error "No known gender map found in the register.";
+		}else{
+			if(gender=='male'){
+				sameSex.addAll(genderReg["male"]);
+				diffSex.addAll(genderReg["female"]);
+			}else{
+				sameSex.addAll(genderReg["female"]);
+				diffSex.addAll(genderReg["male"]);
+			}
+		}
+		//format for return
+		def result=["same":sameSex,"other":diffSex];
+		return result;
+	}
+	//find users that only has a one-sided relationship with the user
+	public Map findMissingSide(User u,ComplexNetworkGenerator complexNetwork){
+		//nodes that go to the user
+		Map outlink=complexNetwork.getOutLinkMap(u);
+		Map inlink=complexNetwork.getInLinkMap(u);
+		Set outSet=outlink.keySet();
+		Set inSet=inlink.keySet();
+		//set operations
+		Set noResponseFrom=outSet-inSet;
+		Set neverRespondTo=inSet-outSet;
+		log.debug "${noResponseFrom.size()} users never responded to the target user.";
+		log.debug "${neverRespondTo.size()} users never got the reply from the target user.";
+		//find the top of them
+		Map winners=[:];
+		Map losers=[:];
+		noResponseFrom.each{name->
+			def weight=outlink[name];
+			if(weight==null){
+				log.error "${name} is lost in the outlink!";
+			}else{
+				winners.put(name,weight);
+			}
+		}
+		neverRespondTo.each{name->
+			def weight=inlink[name];
+			if(weight==null){
+				log.error "${name} is lost in the inlink!";
+			}else{
+				losers.put(name,weight);
+			}
+		}
+		def topK={map->
+			//sort desc
+			map=map.sort { a, b -> b.value <=> a.value };
+			//get top k
+			int k=5;
+			int count=0;
+			def result=[:];
+			for(def e:map){
+				if(count>=k){
+					break;
+				}
+				result.put(e.key,e.value);
+				count++;
+			}
+			return result;
+		}
+		winners=topK(winners);
+		losers=topK(losers);
+		//format for return
+		def toGo=["noResponseFrom":winners,"neverRespondTo":losers];
+		return toGo;		
+	}
+	public Map topSupportByGender(Map support){
+		//initialize return format
+		def result=["same":[:],"other":[:]];
+		
+		if(genderMap==null){
+			log.error "Gender map is not stored!";
+			return result;
+		}else if(genderMap.size()==0){
+			log.error "No users are known by gender.";
+			return result;
+		}
+		//keep a set of users whose gender is known
+		def sameSex=genderMap["same"];
+		def diffSex=genderMap["other"];
+		log.debug "${sameSex.size()+diffSex.size()} users known by gender.";
+		
+		//start to count
+		def sameMap=[:];
+		def diffMap=[:];
+		for(def entry:support){
+			def conn=entry.key;
+			def map=entry.value;
+			log.debug "Processing interaction type: ${conn}";
+			if(!(map instanceof Map)){
+				log.debug "${conn} is not a map.";
+				continue;
+			}
+			for(def e:map){
+				String userName=e.key.trim();
+				int weight=e.value;
+				if(sameSex.contains(userName)){
+					log.debug "${userName} is known by gender.";
+					if(sameMap.containsKey(userName)){
+						sameMap[userName]+=weight;
+					}else{
+						sameMap.put(userName,weight);
+					}
+				}
+				else if(diffSex.contains(userName)){
+					log.debug "${userName} is known by gender.";
+					if(diffMap.containsKey(userName)){
+						diffMap[userName]+=weight;
+					}else{
+						diffMap.put(userName,weight);
+					}
+					
+				}
+			}
+		}
+		//put in result
+		result["same"]=sameMap;
+		result["other"]=diffMap;
+		
+		log.debug "Put the support from same and different gender: "+result;
+		
+		//free the register
+		log.debug "Freeing the gender map register.";
+		this.genderMap.clear();
+		
+		
+		def topK={map->
+			int k=5;
+			def toGo=[:];
+			for(def e:map){
+				if(toGo.size()<k){
+					toGo.put(e.key,e.value);
+				}else{
+					break;
+				}
+			}
+			return toGo;
+		}
+		//sort before return
+		result["same"]=topK(sameMap.sort { a, b -> b.value <=> a.value });
+		result["other"]=topK(diffMap.sort { a, b -> b.value <=> a.value });
+		log.info "Found the top 5 in both gender: "+result;
+		if(result["same"].size()>0){
+			log.debug "Found more than 0 user with same gender:";
+			
+		}else if(result["other"].size()>0){
+			log.debug "Found more than 0 user with different gender.";
+			
+		}		
+		return result;
 	}
 	//crawl the user weibo again
 	public void getFullElement(Job theJob){
 		def crawlReg=theJob.crawlReg;
+		//stop at 500 weibo items
 		def data=this.crawlWeibo(crawlReg);
 		jobLog(theJob.id,"The full scan is complete. Collected data:");
 		jobLog(theJob.id,data.toString());
@@ -212,12 +427,16 @@ class WeiboCrawlerMaster {
 		boolean c=!(DocumentChecker.validateHtmlElement(comment));
 		boolean l=!(DocumentChecker.validateHtmlElement(like));
 		boolean f=!(DocumentChecker.validateHtmlElement(full));
-
+		
 		def flags=["repost":r,"comment":c,"like":l,"full":f];
 		return flags;
 	}
 	public Map crawlRCL(User u,List<Weibo> weibos){
-		//store user interaction of each weibo
+		if(weibos==null){
+			log.error "No weibo passed to crawlRCL!";
+			return [:];
+		}
+		//store user interaction of each 
 		Map<Weibo,ArrayList> interaction=new HashMap<>();
 
 		//get cookies
@@ -239,7 +458,12 @@ class WeiboCrawlerMaster {
 		Map<String,Integer> allLiking=new HashMap<>();
 		Map<String,Integer> allMentioned=new HashMap<>();
 		Map<String,Integer> allMentioning=new HashMap<>();
-		for(int i=0;i<weibos?.size();i++){
+		
+		int stopAt;
+		stopAt=Math.min(300,weibos.size());
+		log.info "RCL crawling will stop at number ${stopAt}";
+		
+		for(int i=0;i<stopAt;i++){
 			Weibo w=weibos[i];
 			//check existing stored info first
 			//if any of mention, comment, repost or like info is available from the db, it must have passed the related study
@@ -276,7 +500,7 @@ class WeiboCrawlerMaster {
 			String url=w.url;
 			url=url.replace("weibo.com","weibo.cn");
 			println "Going to ${url}";
-			//fetch the comments for 5 times before abort
+			
 			boolean gotComment=false;
 			boolean hasRepost=false;
 			boolean hasLike=false;
@@ -298,7 +522,7 @@ class WeiboCrawlerMaster {
 				}else{
 					commentBody=doc.body();
 					String commentString=commentBody.toString();
-					
+
 					log.debug "Got the body of comments: "+commentBody.text();
 					//store the element with the weibo
 					w.commentElement=commentString;
@@ -327,16 +551,19 @@ class WeiboCrawlerMaster {
 				//check the repost and like count
 				String forwardSelector="/repost";
 				def forwardHolder=commentBody.select("a[href~=/repost]");
-				Element forwardElement=forwardHolder.get(0);
-				String forwardText=forwardElement.text();
-				hasRepost=hasNumber(forwardText);
+				if(forwardHolder?.size()>0){
+					Element forwardElement=forwardHolder.get(0);
+					String forwardText=forwardElement.text();
+					hasRepost=hasNumber(forwardText);
+				}
 
 				String likeSelector="/attitude";
 				def likeHolder=commentBody.select("a[href~=/attitude]");
-				Element likeElement=likeHolder.get(0);
-				String likeText=likeElement.text();
-				hasLike=hasNumber(likeText);
-
+				if(likeHolder?.size()>0){
+					Element likeElement=likeHolder.get(0);
+					String likeText=likeElement.text();
+					hasLike=hasNumber(likeText);
+				}
 				//extract comment elements
 				String subquery="C_";
 				Elements comments=commentBody.select("div[id^=${subquery}]");
@@ -493,7 +720,9 @@ class WeiboCrawlerMaster {
 				}
 			}
 		}
-		
+		//save the user's interactions to the other side
+		UserManager.storeChangeInBuffer(u);
+
 		//check if saved
 		String userName=u.weiboName;
 		checkUser(userName);
@@ -614,7 +843,7 @@ class WeiboCrawlerMaster {
 		//def cookies=login('theia_fq@163.com','lallala');
 		log.info "Crawling user with info provided: ";
 		log.info "Url: ${url}";
-		log.info "Data: ${data}"
+		log.info "Data: ${data}";
 		def cookies=CrackedCookieRepo.getOneCookie();
 		boolean found;
 		Document doc=PageRetriever.fetchPage(url);
@@ -733,9 +962,7 @@ class WeiboCrawlerMaster {
 				weiboCountNumber=numbers.get(0);
 			}
 			data.weiboCount=weiboCountNumber;
-
 			data.weiboCountSpan=weiboCount.toString();
-
 			data.following=completeUrl(follow).toString();
 			data.followed=completeUrl(fans).toString();
 			data.grouping=completeUrl(group).toString();
@@ -829,10 +1056,13 @@ class WeiboCrawlerMaster {
 		log.info "Got ${gotPageCount} of ${pageCount}";
 	}
 	public scopeStudy(User u){
-		String url=u.url;
+		def url=u.url;
+		boolean generateUrl=false;
 		if(url==null){
 			log.error "No url for the user";
-			return null;
+//			url="http://weibo.cn/"+u.weiboName;
+			generateUrl=true;
+			url="";//avoid null pointer exception
 		}
 		//convert the url to weibo.cn
 		url=url.replace('com','cn');
@@ -842,10 +1072,27 @@ class WeiboCrawlerMaster {
 		data.userId=u.weiboId;
 		data.userName=u.weiboName;
 		//crawl user's homepage
-		data=crawlUser(url,data);
+		def possibleLinks=[u.url,"http://weibo.cn/"+u.weiboName,"http://weibo.cn/u"+u.weiboName,"http://weibo.cn/"+u.weiboId,"http://weibo.cn/"+u.weiboId];
+		boolean foundPage=false;
+		for(int i=0;i<possibleLinks.size()&&data.size()<=3;i++){
+			url=possibleLinks[i];
+			data=crawlUser(url,data);
+			if(data.size()>3)
+				foundPage=true;
+		}
+		if(foundPage==false){
+			log.error "No data retrieved at last and I've done my best.";
+			return data;
+		}
+		//validate url
+		if(u.url!=url){
+			log.info "User url is not correct. Now update it.";
+			u.url=url;
+			UserManager.saveUser(u);
+		}
 		log.info "Initialized data holder: "+data;
 		jobLog(job.id,"Data from user's homepage: "+data.toString());
-		
+
 		//find how many weibo the system has already got
 		def knownWeibo;
 		Weibo.withTransaction{

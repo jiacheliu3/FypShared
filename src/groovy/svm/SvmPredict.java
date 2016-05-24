@@ -4,6 +4,7 @@ import libsvm.*;
 import java.io.*;
 import java.util.*;
 
+/* The whole package is deprecated in v1.2.2 */
 class SvmPredict {
 	private static svm_print_interface svm_print_null = new svm_print_interface()
 	{

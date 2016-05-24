@@ -1,6 +1,9 @@
 package toolkit
 
 import groovy.util.logging.Log4j
+import input.Patterns
+
+import java.util.regex.Pattern
 
 //Convert between all url formats
 @Log4j
@@ -18,7 +21,7 @@ class UrlConverter {
 				infoUrl=pureUrl+"/info";
 			else
 				infoUrl=pureUrl+"info";
-				
+
 			return infoUrl;
 		}else{
 			log.info "The user url ${userUrl} doesn't match the format!";
@@ -56,20 +59,53 @@ class UrlConverter {
 		else if(url.contains("n/")){
 			return true;
 		}else{
-			println "This url is unrecognized: ${url}";
+			log.error "This url is unrecognized: ${url}";
 			return true;
 		}
 	}
-	public static String fillUrl(String url){
-		//fill the url first
-		if(!url.matches("^(http|https|ftp)://weibo\\.cn.*")){
-			println  "The url doesn't have weibo.cn in it.";
+	public static String fillUrl(String link){
+		String url=link;
+		//check if the url is from weibo.com
+		if(url.contains("www.weibo.com")){
+			url=url.replace("www.weibo.com","weibo.cn");
+		}
+		else if(url.contains("weibo.com")){
+			url=url.replace("weibo.com","weibo.cn");
+		}
+		//check if from weibo.cn
+		if(url.matches("(http|https)://weibo\\.cn.*")){
+			
+		}else if(url.contains("weibo.cn")){//short of http
 			if(url.startsWith('/'))
+				url="http:/"+url;
+			else
+				url="http://"+url;
+		}else{//no weibo no protocol
+			if(url.startsWith("/"))
 				url="http://weibo.cn"+url;
 			else
-				url="http://weibo.cn/"+url;
+				url="http://weibo.cn/"+url;			
+		}
+		
+		return url;
+	}
+	public static boolean validate(String url){
+		Pattern urlPattern=Patterns.URL.value();
+		if(url.matches(urlPattern)){
+			return true;
 		}else{
-			println "The link is under weibo.cn";
+			log.error "Url is not a valid one: ${url}";
+			return false;
+		}
+	}
+	public static String fillUrlById(String wId){
+		wId=wId.trim();
+		String url;
+		if(wId.matches("\\d{5,15}")){
+			url="http://weibo.cn/u/${wId}";
+		}else{
+			log.info "User id is not formed of numbers. Guess this is a name.";
+			url="http://weibo.cn/${wId}";
 		}
 		return url;
 	}
@@ -87,7 +123,7 @@ class UrlConverter {
 		testUrl(url2);
 		String url3="http://weibo.cn/sinaurl?f=w&amp;u=http%3A%2F%2Ft.cn%2FRbmkRlh&amp;ep=DfUZOiGKn%2C3962479408%2CDfUZOiGKn%2C3962479408";
 		testUrl(url3);
-		
+
 	}
-	
+
 }

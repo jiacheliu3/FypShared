@@ -324,7 +324,7 @@ public class Reader {
 		println "Thread running processing background weibo data files.";
 		def timeStart = new Date();
 
-		String path = "D:\\weibo\\UserWeibos201201";
+		String path = "D:\\weibo\\UserWeibos201201";//a sample weibo file
 		readFile(path);
 
 		def timeEnd=new Date();

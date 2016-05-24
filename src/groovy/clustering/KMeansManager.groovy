@@ -4,6 +4,9 @@ import groovy.util.logging.Log4j
 
 @Log4j
 class KMeansManager {
+	//initialize a random generator
+	Random random = new Random();
+	
 	private boolean compareArrays(double[] a, double[] b){
 		if(a.length!=b.length){
 			log.error "Two arrays have different length. A has ${a.length} while B has ${b.length}!"
@@ -98,7 +101,7 @@ class KMeansManager {
 			def v=e.key;
 			closestDist[v]=e.value/sum;
 		}
-		log.debug "Assigned probability for each vector: "+closestDist;
+		log.debug "Assigned probability for each vector.";
 		return closestDist;
 
 	}
@@ -128,11 +131,9 @@ class KMeansManager {
 		}
 		return centroid;
 	}
-	public List<List<Double>> putCentroidsApart(List<List<Double>> vectors,int k){
-		println "Generating ${k} centroids for ${vectors.size()} vectors.";
+	public List<List<Double>> putCentroidsApartByDistance(List<List<Double>> vectors,int k){
+		log.debug "Generating ${k} centroids for ${vectors.size()} vectors.";
 		def centroids=[];
-		//randomly pick the first centroid
-		Random random = new Random();
 		int max=vectors.size()-1;
 		int randomNumber = random.nextInt(max);
 		List<Double> firstCentroid=vectors[randomNumber];
@@ -150,6 +151,18 @@ class KMeansManager {
 
 		}
 
+		return centroids;
+	}
+	public List<List<Double>> putCentroidsApartRandomly(List<List<Double>> vectors,int k){
+		log.debug "Generating ${k} centroids for ${vectors.size()} vectors.";
+		def centroids=[];
+		while(centroids.size()<k){
+			int nextIndex=random.nextInt(vectors.size());//random is exclusive of the top value given
+			def nextOne=vectors[nextIndex];
+			centroids.add(nextOne);
+			vectors.remove(nextOne);
+		}
+		log.debug "${k} vectors randomized.";
 		return centroids;
 	}
 	//assign each cluster to centroid and calculate new centroids
@@ -195,17 +208,55 @@ class KMeansManager {
 			return false;
 		return group1.equals(group2);
 	}
-	public Map kmeansPlus(List<List<Double>> vectors){
+	public Map calculateKmeans(List<List<Double>> vectors){
+		int maxK=10;
 		//decide k value
 		int siz=vectors.size();
 		int k=Math.ceil(siz/40);
+		if(k>maxK){
+			log.debug "K value reaches upper limit. Set to ${maxK} clusters manually.";
+			k=maxK;
+		}
+			
 		log.debug "Arbitrarily choose k value as ${k}.";
-		return kmeansPlus(vectors,k);
+		
+		//approximate by using plain kmeans if there are too many vectors
+		int threshold=500;
+		def clustering;
+		if(siz>threshold){
+			log.info "${siz} vectors is beyond the calculation power. Use plain kmeans to achieve quicker response.";
+			clustering=kmeans(vectors,k);
+		}else{
+			log.info "${siz} vectors is within calculation power. Use kmeans++ to achieve better results.";
+			clustering=kmeansPlus(vectors,k);
+		}
+		return clustering;
+	}
+	//calculate kmeans
+	public Map kmeans(List<List<Double>> vectors,int k){
+		//initialize k centroids that are far enough apart
+		List<List<Double>> centroids=putCentroidsApartRandomly(vectors,k);
+		//continue to calculate kmeans until centroids stablize
+		Map<List<Double>,List<List<Double>>> mapping;
+		boolean converged=false;
+		int counter=1;
+		while(!converged&&counter<50){
+			mapping=calculateMapping(centroids,vectors);
+			def newCentroids=mapping.keySet();
+			//check if converged
+			converged=compareCentroids(centroids,newCentroids);
+			log.debug "${counter}th iteration. Converged: ${converged}";
+			//store the new centroids
+			centroids.size=0
+			centroids.addAll(newCentroids);
+			counter++;
+		}
+		return mapping;
 	}
 	//calculate k means clustering of a list of vectors
 	public Map kmeansPlus(List<List<Double>> vectors,int k){
 		//initialize k centroids that are far enough apart
-		List<List<Double>> centroids=putCentroidsApart(vectors,k);
+		List<List<Double>> centroids=putCentroidsApartByDistance(vectors,k);
 		//continue to calculate kmeans until centroids stablize
 		Map<List<Double>,List<List<Double>>> mapping;
 		boolean converged=false;
@@ -234,6 +285,10 @@ class KMeansManager {
 		@Override
 		public int compareTo(Centroid c) {
 			List<Double> vector2=c.vector;
+			if(vector==null||vector2==null){
+				log.error "One of the vectors are null! ${vector},${vector2}";
+				return -1;
+			}
 			if(vector.size()!=vector2.size())
 				return vector.size().compareTo(vector2.size());
 			for(int i=0;i<vector.size();i++){

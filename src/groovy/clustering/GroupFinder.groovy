@@ -3,11 +3,12 @@ package clustering
 import groovy.json.JsonSlurper
 import groovy.util.logging.Log4j
 import segmentation.PythonCaller
+import toolkit.PathManager
 
 @Log4j
 class GroupFinder {
 	static Map<String,Integer> featureMap=new HashMap<>();
-	static String base="C:\\Users\\jiacheliu3\\git\\projects\\CodeBigBro\\";
+	static String base=PathManager.clusterBasePath;
 	static Map<String, ArrayList<Double>> clusterMeans=new HashMap<>();
 	public static void loadFeatures(){
 		if(ClusterManager.featureMap?.size()>0){
