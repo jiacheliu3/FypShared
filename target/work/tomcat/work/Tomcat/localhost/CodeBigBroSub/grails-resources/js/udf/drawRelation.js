@@ -68,7 +68,7 @@ function displayInfo(relation) {
 	var cingZone = document.getElementById("cingInfo");
 	// showNumber("cing",cingZone,cingArr);
 	showNumberInButton("cing", cingArr);
-	var cedArr = relation["commenting"];
+	var cedArr = relation["commented"];
 	var cedZone = document.getElementById("cedInfo");
 	// showNumber("ced",cedZone,cedArr);
 	showNumberInButton("ced", cedArr);
@@ -86,6 +86,7 @@ function drawSupport(support) {
 	var comment = support["commented"];
 	var forward = support["forwarded"];
 	var like = support["liked"];
+	var mention=support["mentioning"];
 
 	var total = support["total"];
 	console.log("Got comments map from user");
@@ -94,14 +95,47 @@ function drawSupport(support) {
 	console.log(like);
 	console.log("Got forwards map from user");
 	console.log(forward);
+	console.log("Got mentioning map from user");
+	console.log(mention);
+	console.log("total is "+total);
 
 	drawSupportTable(comment, "comment", total);
 	drawSupportTable(forward, "forward", total);
 	drawSupportTable(like, "like", total);
+    drawSupportTable(mention, "mention", total);
 }
 function drawSupportTable(map, name, total) {
 	console.log("Processing table " + name);
+	console.log("Support table to draw: ");
+	console.log(map);
 	var zone = document.getElementById(name + "TableBody");
+
+    function isEmpty(obj) {
+        return Object.keys(obj).length === 0;
+    }
+    // If no info
+    if(isEmpty(map)){
+    	for (var i=0;i<3;i++){
+            var tr = document.createElement("tr");
+            var u = document.createElement("td");
+            u.innerHTML = "empty";
+            var c = document.createElement("td");
+            c.innerHTML = " ";
+            var r = document.createElement("td");
+            r.innerHTML = " ";
+
+            tr.appendChild(u);
+            tr.appendChild(c);
+            tr.appendChild(r);
+
+            zone.appendChild(tr);
+		}
+
+		console.log("Created empty table");
+    	return;
+	}
+
+    // If the map is not empty
 	for ( var f in map) {
 		if (map.hasOwnProperty(f)) {
 			var count = map[f];
@@ -126,7 +160,19 @@ function drawSupportTable(map, name, total) {
 function drawPattern(patterns) {
 	console.log("The patterns are ");
 	console.log(patterns);
-	drawPatternTable(patterns, "pattern");
+
+	var total=0;
+	for(var f in patterns){
+		var p = patterns[f];
+		console.log(p);
+		if(p.support!=null)
+			total+=p.support
+		else{
+			console.log("No support count" );
+		}
+	}
+	console.log("Total is "+total);
+	drawPatternTable(patterns, "pattern", total);
 
 }
 function drawPatternTable(array, name, total) {

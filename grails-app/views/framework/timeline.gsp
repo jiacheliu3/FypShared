@@ -74,6 +74,7 @@ text.axis-label{
 			</div>
 			<!-- /.row -->
 
+			<!--
 			<div class="row">
 				<div class="col-lg-12">
 					<div class="box box-primary">
@@ -86,15 +87,16 @@ text.axis-label{
 						</div>
 					</div>
 				</div>
-				<!-- /.col-lg-12 -->
+
 			</div>
+			-->
 			<!-- /.row -->
 			
 			<div class="row">
 				<div class="col-lg-12">
 					<div class="box box-primary">
 						<div class="box-header with-border">
-							<h4>Yet another timeline</h4>
+							<h4>Another timeline</h4>
 						</div>
 						<div class="box-body">
 							<div id="spottedTimeline" style="overflow:auto;"></div>
@@ -136,7 +138,8 @@ text.axis-label{
 				var spots=jsonData["spots"];
 				console.log("The spots on timeline are ");
 				console.log(spots);
-				timelineChart(spots);
+				// timelineChart(spots); //temp put offline /* 1.3 beta */
+
 				//spotted timeline in table format, 3rd graph
 				var blocks=jsonData["blocks"];
 				console.log("Date for table spotted timeline:");
@@ -169,6 +172,8 @@ text.axis-label{
 		function timelineChart(data){
 			var domEl = 'timeline';
 			var brushEnabled = false;
+			console.log("Data for timeline 1:");
+			console.log(data);
 			//draw the timeline where each weibo is a spot
 			timeseries(domEl, data, brushEnabled);
 		}

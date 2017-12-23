@@ -37,7 +37,7 @@ class TFIDFManager {
 		keywords=KeywordFilter.filterList(keywords);
 		
 		//write to file
-		File features=new File(base+"\\weiboFeatures.txt");
+		File features=new File(base+"/weiboFeatures.txt");
 		if(features.exists()){
 			features.withWriter('utf-8'){it.write("")}
 		}

@@ -123,35 +123,6 @@ class ClusterManager {
 		}
 		log.info "Final tags are ${tags}";
 
-		/* Use mallet kmeans */
-		//calculate k means, return value is the means of each cluster
-		//		mm.kmeans();
-		//		ArrayList<SparseVector> centroids=mm.getCentroids();
-		//		Clustering clustering = mm.getClustering();
-		//		if(clustering==null){
-		//			log.info "No clustering formed.";
-		//			return;
-		//		}
-		//
-		//		//store the cluster model
-		//		storeClusters(centroids);
-		//
-		//		//find the corresponding tags from the clusters
-		//		//LinkedHashMap<String,ArrayList<Double>> tagMap=new LinkedHashMap<>();
-		//		ArrayList<String> tags=new ArrayList<>();
-		//		//ArrayList<>
-		//		centroids.each{
-		//			double[] values=it.getValues();
-		//			//find the tag of the cluster
-		//			String tag=findTag(values);
-		//
-		//			log.info "Found tag ${tag}";
-		//			//tagMap.put(tag,values.toList());
-		//			tags.add(tag);
-		//
-		//		}
-		/* End of mallet zone */
-
 		wrapper.addCentroids(centroids);
 		wrapper.addTags(tags);
 		//wrapper.addClusters(clustering.getClusters());
@@ -340,7 +311,7 @@ class ClusterManager {
 	}
 
 	private  int loadFeatures() {
-		File features=new File(base+"weiboFeatures.txt");
+		File features=new File(base+"/weiboFeatures.txt");
 		int dimension=0;
 		if(!features.exists()){
 			log.error "Features file does not exist!"

@@ -66,7 +66,7 @@ class PythonCaller {
 		outputFile.withWriter('utf-8'){ it.write("") }
 		//jieba
 //		Process proc1=Runtime.getRuntime().exec("${pythonBase}\\python ${pythonHome}\\jiebaSeg.py ${input} ${output}")
-		Process proc1=Runtime.getRuntime().exec("python ${pythonHome}\\jiebaSeg.py ${input} ${output}")
+		Process proc1=Runtime.getRuntime().exec("python ${pythonHome}/jiebaSeg.py ${input} ${output}")
 		//proc1.waitFor();
 		proc1.waitForProcessOutput(System.out,System.err);
 		log.debug "Finished jieba TFIDF"
@@ -105,14 +105,14 @@ class PythonCaller {
 		
 		//jieba
 //		Process proc1=Runtime.getRuntime().exec("${pythonBase}\\python ${pythonHome}\\jiebaTFIDF.py ${input} ${jiebaTFIDF}")
-		Process proc1=Runtime.getRuntime().exec("python ${pythonHome}\\jiebaTFIDF.py ${input} ${jiebaTFIDF}")
+		Process proc1=Runtime.getRuntime().exec("python ${pythonHome}/jiebaTFIDF.py ${input} ${jiebaTFIDF}")
 		//proc1.waitFor();
 		proc1.waitForProcessOutput(System.out,System.err);
 
 
 		//jieba
 //		Process proc2=Runtime.getRuntime().exec("${pythonBase}\\python ${pythonHome}\\jiebaTextRank.py ${input} ${jiebaTR}")
-		Process proc2=Runtime.getRuntime().exec("python ${pythonHome}\\jiebaTextRank.py ${input} ${jiebaTR}")
+		Process proc2=Runtime.getRuntime().exec("python ${pythonHome}/jiebaTextRank.py ${input} ${jiebaTR}")
 		//proc2.waitFor();
 
 		proc2.waitForProcessOutput(System.out,System.err);
@@ -130,7 +130,7 @@ class PythonCaller {
 		log.info "Prepare to segment contents in file ${inputPath}";
 		//jieba
 //		Process proc1=Runtime.getRuntime().exec("${pythonBase}\\python ${pythonHome}\\jiebaSeg.py ${inputPath} ${outputPath}");
-		Process proc1=Runtime.getRuntime().exec("python ${pythonHome}\\jiebaSeg.py ${inputPath} ${outputPath}");
+		Process proc1=Runtime.getRuntime().exec("python ${pythonHome}/jiebaSeg.py ${inputPath} ${outputPath}");
 		//proc1.waitFor();
 		proc1.waitForProcessOutput(System.out,System.err);
 		log.debug "Finished jieba segmentation";

@@ -1,6 +1,6 @@
 #coding=utf-8
 import sys
-from idlelib.IOBinding import encoding
+# from idlelib.IOBinding import encoding
 from codecs import open
 import jieba
 
