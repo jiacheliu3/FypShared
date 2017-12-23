@@ -1,0 +1,105 @@
+Input path:  D:/training/temp/forPython.txt
+Output path:  D:/training/temp/forJava.txt
+Initiate the trainer
+The files to load are  ['auto', 'beauty', 'book', 'career', 'charity', 'comic', 'digital', 'education', 'films', 'finance', 'food', 'game', 'garment', 'gossip', 'health', 'history', 'housing', 'IT', 'lottery', 'millitary', 'music', 'news', 'pet', 'photography', 'politics', 'society', 'sports', 'tourism', 'variety']
+processing the file named  auto
+X loaded: (2988, 73935)  y loaded: 2988
+processing the file named  beauty
+X loaded: (3820, 73935)  y loaded: 3820
+processing the file named  book
+X loaded: (12, 73935)  y loaded: 12
+processing the file named  career
+X loaded: (655, 73935)  y loaded: 655
+processing the file named  charity
+X loaded: (2440, 73935)  y loaded: 2440
+processing the file named  comic
+X loaded: (3337, 73935)  y loaded: 3337
+processing the file named  digital
+X loaded: (948, 73935)  y loaded: 948
+processing the file named  education
+X loaded: (1963, 73935)  y loaded: 1963
+processing the file named  films
+X loaded: (40, 73935)  y loaded: 40
+processing the file named  finance
+X loaded: (1921, 73935)  y loaded: 1921
+processing the file named  food
+X loaded: (4054, 73935)  y loaded: 4054
+processing the file named  game
+X loaded: (2611, 73935)  y loaded: 2611
+processing the file named  garment
+X loaded: (43, 73935)  y loaded: 43
+processing the file named  gossip
+X loaded: (663, 73935)  y loaded: 663
+processing the file named  health
+X loaded: (1001, 73935)  y loaded: 1001
+processing the file named  history
+X loaded: (855, 73935)  y loaded: 855
+processing the file named  housing
+X loaded: (4282, 73935)  y loaded: 4282
+processing the file named  IT
+X loaded: (2022, 73935)  y loaded: 2022
+processing the file named  lottery
+X loaded: (2268, 73935)  y loaded: 2268
+processing the file named  millitary
+X loaded: (438, 73935)  y loaded: 438
+processing the file named  music
+X loaded: (95, 73935)  y loaded: 95
+processing the file named  news
+X loaded: (13, 73935)  y loaded: 13
+processing the file named  pet
+X loaded: (3673, 73935)  y loaded: 3673
+processing the file named  photography
+X loaded: (94, 73935)  y loaded: 94
+processing the file named  politics
+X loaded: (616, 73935)  y loaded: 616
+processing the file named  society
+X loaded: (1701, 73935)  y loaded: 1701
+processing the file named  sports
+X loaded: (1524, 73935)  y loaded: 1524
+processing the file named  tourism
+X loaded: (300, 73935)  y loaded: 300
+processing the file named  variety
+X loaded: (254, 73935)  y loaded: 254
+final shape is  (44631, 73935)
+labels are [(1.0,), (1.0,), (1.0,), (1.0,), (1.0,), (1.0,), (1.0,), (1.0,), (1.0,), (1.0,), (1.0,), (1.0,), (1.0,), (1.0,), (1.0,), (1.0,), (1.0,), (1.0,), (1.0,), (1.0,), (1.0,), (1.0,), (1.0,), (1.0,), (1.0,), (1.0,), (1.0,), (1.0,), (1.0,), (1.0,), (1.0,), (1.0,), (1.0,), (1.0,), (1.0,), (1.0,), (1.0,), (1.0,), (1.0,), (1.0,), (1.0,), (1.0,), (1.0,), (1.0,), (1.0,), (1.0,), (1.0,), (1.0,), (1.0,), (1.0,), (1.0,), (1.0,), (1.0,), (1.0,), (1.0,), (1.0,), (1.0,), (1.0,), (1.0,), (1.0,), (1.0,), (1.0,), (1.0,), (1.0,), (1.0,), (1.0,), (1.0,), (1.0,), (1.0,), (1.0,), (1.0,), (1.0,), (1.0,), (1.0,), (1.0,), (1.0,), (1.0,), (1.0,), (1.0,), (1.0,), (1.0,), (1.0,), (1.0,), (1.0,), (1.0,), (1.0,), (1.0,), (1.0,), (1.0,), (1.0,), (1.0,), (1.0,), (1.0,), (1.0,), (1.0,), (1.0,), (1.0,), (1.0,), (1.0,), (1.0,)]
+Train set has distribution  {0: 1963, 1: 2522, 2: 6, 3: 440, 4: 1635, 5: 2250, 6: 629, 7: 1332, 8: 22, 9: 1319, 10: 2714, 11: 1768, 12: 31, 13: 443, 14: 689, 15: 577, 16: 2892, 17: 1336, 19: 1534, 20: 297, 21: 66, 22: 8, 23: 2452, 24: 64, 25: 404, 27: 1122, 28: 1011, 30: 207, 31: 169}
+Test set has distribution  {0: 1025, 1: 1298, 2: 6, 3: 215, 4: 805, 5: 1087, 6: 319, 7: 631, 8: 18, 9: 602, 10: 1340, 11: 843, 12: 12, 13: 220, 14: 312, 15: 278, 16: 1390, 17: 686, 19: 734, 20: 141, 21: 29, 22: 5, 23: 1221, 24: 30, 25: 212, 27: 579, 28: 513, 30: 93, 31: 85}
+Append the last
+Read  73935  features
+Features are  ['\xe5\x93\x81\xe7\xab\xa0\n', '\xe5\x8f\x8c\xe9\xa2\x8a\n', '\xe5\x90\xb4\xe8\xaf\xad\n', '\xe5\x88\x98\xe7\x95\x8a\xe5\xae\x8f\n', '\xe6\x9d\x8e\xe5\x86\xb0\n', '\xe5\x9f\xba\xe7\x9d\xa3\xe7\xbd\x91\n', '\xe7\xbd\x97\xe6\xb1\x89\xe5\xaf\xba\n', '\xe6\x99\xae\xe6\xb3\x95\n', '\xe9\x83\xbd\xe5\x8f\x91\xe6\xb3\x84\n', 'WCG\xe4\xba\x9a\n']
+The data are stored in the trainer.
+Initiated ensemble object with data
+Model file exists, load it.
+Model is loaded.
+Make prediction on path:  D:/training/temp/forPython.txt
+The matrix to predict:  (98, 73935)
+Predictions made:  [[ 0.00169242  0.12952953  0.00035586 ...,  0.01910911  0.00071719
+   0.00933013]
+ [ 0.00169242  0.12952953  0.00035586 ...,  0.01910911  0.00071719
+   0.00933013]
+ [ 0.00169242  0.12952953  0.00035586 ...,  0.01910911  0.00071719
+   0.00933013]
+ ..., 
+ [ 0.00169242  0.12952953  0.00035586 ...,  0.01910911  0.00071719
+   0.00933013]
+ [ 0.00169242  0.12952953  0.00035586 ...,  0.01910911  0.00071719
+   0.00933013]
+ [ 0.00169242  0.12952953  0.00035586 ...,  0.01910911  0.00071719
+   0.00933013]]
+Prediction shape:  98
+Prediction complete:  [[ 0.00169242  0.12952953  0.00035586 ...,  0.01910911  0.00071719
+   0.00933013]
+ [ 0.00169242  0.12952953  0.00035586 ...,  0.01910911  0.00071719
+   0.00933013]
+ [ 0.00169242  0.12952953  0.00035586 ...,  0.01910911  0.00071719
+   0.00933013]
+ ..., 
+ [ 0.00169242  0.12952953  0.00035586 ...,  0.01910911  0.00071719
+   0.00933013]
+ [ 0.00169242  0.12952953  0.00035586 ...,  0.01910911  0.00071719
+   0.00933013]
+ [ 0.00169242  0.12952953  0.00035586 ...,  0.01910911  0.00071719
+   0.00933013]]
+Output to  D:/training/temp/forJava.txt
+Output  98  predictions to file.
+Output complete

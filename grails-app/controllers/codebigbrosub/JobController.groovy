@@ -113,6 +113,7 @@ class JobController {
 		def data=[:];
 		WeiboCrawlerMaster crawlerMaster=new WeiboCrawlerMaster();
 		data=crawlerMaster.crawlUser(url,data);
+		log.info("Crawler master returned data "+data);
 
 		//generate the user
 		User u=UserGenerator.generateUser(data);
@@ -126,6 +127,7 @@ class JobController {
 
 		//perform preparation step crawling
 		def d=job.newUserCrawlSlave();
+
 		data.putAll(d);
 
 		data["knownCount"]=0;

@@ -1,13 +1,16 @@
 #coding=utf-8
 from jieba.analyse import extract_tags
-import sys
+import sys, os
 from codecs import open
 
 inFile=sys.argv[1]
 outFile=sys.argv[2]
 
+# inFile=os.path.join(os.getcwd(), inFile)
+# outFile=os.path.join(os.getcwd(), outFile)
+
 i=open(inFile,"r",encoding="utf-8")
-print "Start working on file ",inFile
+print("Start working on file ",inFile)
 keyword_list=[]
 # input and keyword extraction
 with open(inFile,"r",encoding="utf-8") as file:
@@ -15,7 +18,7 @@ with open(inFile,"r",encoding="utf-8") as file:
     for i in range(len(lines)):
         line=lines[i]
         if line==None or line=='':
-            print "Line is empty"
+            print("Line is empty")
         else:
             # calculate number of keywords
             length = len(line)
@@ -30,7 +33,7 @@ with open(inFile,"r",encoding="utf-8") as file:
             keyword_list.append(keywords)
 file.close()
 # output
-print "Completed keyword extraction on ",len(keyword_list)," items"
+print("Completed keyword extraction on ",len(keyword_list)," items")
 with open(outFile,"w",encoding="utf-8") as output:
     for i in range(len(keyword_list)):
         theWords=keyword_list[i]
@@ -40,6 +43,6 @@ with open(outFile,"w",encoding="utf-8") as output:
             output.write(result)
         else:
             output.write('\n'+result)
-    print "Output to file"
+    print("Output to file")
 output.close()
-print "Written to file ",outFile
+print("Written to file ",outFile)

@@ -135,6 +135,7 @@ class KMeansManager {
 		log.debug "Generating ${k} centroids for ${vectors.size()} vectors.";
 		def centroids=[];
 		int max=vectors.size()-1;
+
 		int randomNumber = random.nextInt(max);
 		List<Double> firstCentroid=vectors[randomNumber];
 		log.debug "Got the 1st centroid:"+firstCentroid;
@@ -255,10 +256,17 @@ class KMeansManager {
 	}
 	//calculate k means clustering of a list of vectors
 	public Map kmeansPlus(List<List<Double>> vectors,int k){
+		Map<List<Double>,List<List<Double>>> mapping;
+
+		if(vectors.size()==0){
+			log.info "No vectors to cluster"
+			mapping=new HashMap<>();
+			return mapping;
+		}
+
 		//initialize k centroids that are far enough apart
 		List<List<Double>> centroids=putCentroidsApartByDistance(vectors,k);
 		//continue to calculate kmeans until centroids stablize
-		Map<List<Double>,List<List<Double>>> mapping;
 		boolean converged=false;
 		int counter=1;
 		while(!converged&&counter<50){

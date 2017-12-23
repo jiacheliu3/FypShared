@@ -147,7 +147,7 @@ log4j.main = {
 			'svm',
 			'vectorization',
 			'toolkit',
-			'grails.app.controllers.org.grails.plugins.fileserver'//file server
+			'grails.app.controllers.org.grails.plugins.fileserver' //file server
 	
 	//default starts here		
     error  'org.codehaus.groovy.grails.web.servlet',        // controllers

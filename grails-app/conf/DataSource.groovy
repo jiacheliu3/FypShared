@@ -1,11 +1,11 @@
 /*for h2db*/
-dataSource {
-	pooled = true
-	jmxExport = true
-	driverClassName = "org.h2.Driver"
-	username = "sa"
-	password = ""
-}
+//dataSource {
+//	pooled = true
+//	jmxExport = true
+//	driverClassName = "org.h2.Driver"
+//	username = "sa"
+//	password = ""
+//}
 /*for MS SQL server*/
 //dataSource {
 //
@@ -27,12 +27,12 @@ dataSource {
 //password = "grails"
 //}
 /*for maria db*/
-//dataSource {
-//	pooled = true
-//	driverClassName = "org.mariadb.jdbc.Driver"
-//	username = "root"
-//	password = "root"
-//}
+dataSource {
+	pooled = true
+	driverClassName = "org.mariadb.jdbc.Driver"
+	username = "root"
+	password = "root"
+}
 /*hibernate*/
 hibernate {
 	cache.use_second_level_cache = true
@@ -51,14 +51,14 @@ hibernate {
 environments {
 	development {
 		dataSource {
-			dbCreate = "create-drop" // one of 'create', 'create-drop', 'update', 'validate', ''
+			dbCreate = "update" // one of 'create', 'create-drop', 'update', 'validate', ''
 			/*H2DB*/
-			url = "jdbc:h2:mem:devDb;MVCC=TRUE;LOCK_TIMEOUT=10000;DB_CLOSE_ON_EXIT=FALSE"
+//			url = "jdbc:h2:mem:devDb;MVCC=TRUE;LOCK_TIMEOUT=10000;DB_CLOSE_ON_EXIT=FALSE"
 			/*mysql*/
 			//url = "jdbc:mysql://localhost:3306/WeiboStudy?autoreconnect=true?useUnicode=true&amp;characterEncoding=UTF8MB4"
 			//url = "jdbc:mysql://localhost:3306/WeiboStudy?autoreconnect=true"
 			/*mariadb*/
-//			url = "jdbc:mariadb://localhost:33060/weibostudy"
+			url = "jdbc:mariadb://localhost:3306/weibostudy"
 //?autoreconnect=true?useUnicode=true&amp;characterEncoding=UTF8MB4"
 		}
 	}

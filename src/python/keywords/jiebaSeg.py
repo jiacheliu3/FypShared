@@ -6,7 +6,7 @@ import jieba
 
 inFile=sys.argv[1]
 outFile=sys.argv[2]
-print "Start working on file ",inFile
+print("Start working on file ",inFile)
 seg_list=[]
 # input and keyword extraction
 with open(inFile,"r",encoding="utf-8") as file:
@@ -14,14 +14,14 @@ with open(inFile,"r",encoding="utf-8") as file:
     for i in range(len(lines)):
         line=lines[i]
         if line==None or line=='':
-            print "Line is empty"
+            print("Line is empty")
         else:
             words = jieba.cut(line)
             #print "Got ",len(keywords)," keywords"
             seg_list.append(words)
 file.close()
 # output
-print "Completed segmentation on ",len(seg_list)," items"
+print("Completed segmentation on ",len(seg_list)," items")
 with open(outFile,"w",encoding="utf-8") as output:
     for i in range(len(seg_list)):
         theWords=seg_list[i]
@@ -31,6 +31,6 @@ with open(outFile,"w",encoding="utf-8") as output:
             output.write(result)
         else:
             output.write(result)
-    print "Output to file"
+    print("Output to file")
 output.close()
-print "Written to file ",outFile
+print("Written to file ",outFile)

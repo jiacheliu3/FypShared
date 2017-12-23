@@ -12,9 +12,9 @@ class PythonCaller {
 	static String pythonBase=PathManager.pythonBasePath;
 
 	public static void tfidf(String content,long jobId){
-		String input=base+"temp\\${jobId}input.txt";
+		String input=base+"/temp/${jobId}input.txt";
 		//String inJiebaTFIDF=base+"temp\\jiebaTFIDFInput.txt";
-		String outJiebaTFIDF=base+"temp\\${jobId}jiebaTFIDF.txt";
+		String outJiebaTFIDF=base+"/temp/${jobId}jiebaTFIDF.txt";
 
 		//write the content to input file
 		File inFile=new File(input);
@@ -34,7 +34,8 @@ class PythonCaller {
 			outputFile.write("","utf-8");
 		}
 		//jieba tfidf
-		Process proc1=Runtime.getRuntime().exec("${pythonBase}\\python ${pythonHome}\\jiebaTFIDF.py ${input} ${outJiebaTFIDF}")
+//		Process proc1=Runtime.getRuntime().exec("${pythonBase}\\python ${pythonHome}\\jiebaTFIDF.py ${input} ${outJiebaTFIDF}")
+		Process proc1=Runtime.getRuntime().exec("python ${pythonHome}\\jiebaTFIDF.py ${input} ${outJiebaTFIDF}")
 		//proc1.waitFor();
 		proc1.waitForProcessOutput(System.out,System.err);
 		log.debug "Finished jieba TFIDF";
@@ -48,7 +49,7 @@ class PythonCaller {
 		log.debug "Prepare to segment ${content}";
 
 		//generate file
-		String input=base+"temp\\${jobId}toSeg.txt";
+		String input=base+"/temp/${jobId}toSeg.txt";
 		//write the content to input file
 		File inFile=new File(input);
 		if(!inFile.exists()){
@@ -59,12 +60,13 @@ class PythonCaller {
 
 		inFile.write(content,'utf-8');
 
-		String output=base+"temp\\${jobId}segResult.txt";
+		String output=base+"/temp/${jobId}segResult.txt";
 		File outputFile=new File(output);
 		//initialize the file
 		outputFile.withWriter('utf-8'){ it.write("") }
 		//jieba
-		Process proc1=Runtime.getRuntime().exec("${pythonBase}\\python ${pythonHome}\\jiebaSeg.py ${input} ${output}")
+//		Process proc1=Runtime.getRuntime().exec("${pythonBase}\\python ${pythonHome}\\jiebaSeg.py ${input} ${output}")
+		Process proc1=Runtime.getRuntime().exec("python ${pythonHome}\\jiebaSeg.py ${input} ${output}")
 		//proc1.waitFor();
 		proc1.waitForProcessOutput(System.out,System.err);
 		log.debug "Finished jieba TFIDF"
@@ -102,14 +104,17 @@ class PythonCaller {
 		String jiebaTFIDF=tfOutput.getCanonicalPath();
 		
 		//jieba
-		Process proc1=Runtime.getRuntime().exec("${pythonBase}\\python ${pythonHome}\\jiebaTFIDF.py ${input} ${jiebaTFIDF}")
+//		Process proc1=Runtime.getRuntime().exec("${pythonBase}\\python ${pythonHome}\\jiebaTFIDF.py ${input} ${jiebaTFIDF}")
+		Process proc1=Runtime.getRuntime().exec("python ${pythonHome}\\jiebaTFIDF.py ${input} ${jiebaTFIDF}")
 		//proc1.waitFor();
 		proc1.waitForProcessOutput(System.out,System.err);
 
 
 		//jieba
-		Process proc2=Runtime.getRuntime().exec("${pythonBase}\\python ${pythonHome}\\jiebaTextRank.py ${input} ${jiebaTR}")
+//		Process proc2=Runtime.getRuntime().exec("${pythonBase}\\python ${pythonHome}\\jiebaTextRank.py ${input} ${jiebaTR}")
+		Process proc2=Runtime.getRuntime().exec("python ${pythonHome}\\jiebaTextRank.py ${input} ${jiebaTR}")
 		//proc2.waitFor();
+
 		proc2.waitForProcessOutput(System.out,System.err);
 
 		//cleanup input file
@@ -124,7 +129,8 @@ class PythonCaller {
 		String outputPath=outputFile.getCanonicalPath();
 		log.info "Prepare to segment contents in file ${inputPath}";
 		//jieba
-		Process proc1=Runtime.getRuntime().exec("${pythonBase}\\python ${pythonHome}\\jiebaSeg.py ${inputPath} ${outputPath}");
+//		Process proc1=Runtime.getRuntime().exec("${pythonBase}\\python ${pythonHome}\\jiebaSeg.py ${inputPath} ${outputPath}");
+		Process proc1=Runtime.getRuntime().exec("python ${pythonHome}\\jiebaSeg.py ${inputPath} ${outputPath}");
 		//proc1.waitFor();
 		proc1.waitForProcessOutput(System.out,System.err);
 		log.debug "Finished jieba segmentation";
@@ -149,12 +155,13 @@ class PythonCaller {
 	}
 	public static call(String content,long jobId){
 		//generate the files
-		String input=base+"temp\\${jobId}input.txt";
+		String input=base+"/temp/${jobId}input.txt";
 		//String inSnowNLP=base+"temp\\snowInput.txt";
-		String outJiebaTFIDF=base+"temp\\${jobId}jiebaTFIDF.txt";
-		String outJiebaTR=base+"temp\\${jobId}jiebaTextRank.txt";
+		String outJiebaTFIDF=base+"/temp/${jobId}jiebaTFIDF.txt";
+		String outJiebaTR=base+"/temp/${jobId}jiebaTextRank.txt";
 
 		//write the content to input file
+		log.info "Creating new file ${input}"
 		File inFile=new File(input);
 		if(!inFile.exists()){
 			inFile.createNewFile();
@@ -172,13 +179,15 @@ class PythonCaller {
 		outTR.withWriter('utf-8'){ it.write("") }
 
 		//jieba
-		Process proc1=Runtime.getRuntime().exec("${pythonBase}\\python ${pythonHome}\\jiebaTFIDF.py ${input} ${outJiebaTFIDF}")
+//		Process proc1=Runtime.getRuntime().exec("${pythonBase}\\python ${pythonHome}\\jiebaTFIDF.py ${input} ${outJiebaTFIDF}")
+		Process proc1=Runtime.getRuntime().exec("python ${pythonHome}\\jiebaTFIDF.py ${input} ${outJiebaTFIDF}")
 		//proc1.waitFor();
 		proc1.waitForProcessOutput(System.out,System.err);
 
 
 		//jieba
-		Process proc2=Runtime.getRuntime().exec("${pythonBase}\\python ${pythonHome}\\jiebaTextRank.py ${input} ${outJiebaTR}")
+//		Process proc2=Runtime.getRuntime().exec("${pythonBase}\\python ${pythonHome}\\jiebaTextRank.py ${input} ${outJiebaTR}")
+		Process proc2=Runtime.getRuntime().exec("python ${pythonHome}\\jiebaTextRank.py ${input} ${outJiebaTR}")
 		//proc2.waitFor();
 		proc2.waitForProcessOutput(System.out,System.err);
 

@@ -60,8 +60,8 @@ class SepManager {
 		//use jcseg to segment sentences
 		//prepareJcseg();
 
-		pyInput=base+"temp\\tempInput.txt";
-		pyOutput=base+"temp\\tempOutput.txt";
+		pyInput=base+"/temp/tempInput.txt";
+		pyOutput=base+"/temp/tempOutput.txt";
 
 		LinkedHashMap<String,Double> keywordOdds=new LinkedHashMap<>();
 
@@ -328,7 +328,7 @@ class SepManager {
 		try{
 			//pass to python script
 			PythonCaller.call(s,jobId);
-			String tfidfPath=base+"temp\\${jobId}jiebaTFIDF.txt";
+			String tfidfPath=base+"/temp/${jobId}jiebaTFIDF.txt";
 			jiebaTFIDF=new File(tfidfPath);
 			if(!jiebaTFIDF.exists()){
 				log.error "File not found: ${tfidfPath}";
@@ -342,7 +342,7 @@ class SepManager {
 					}
 				}
 			}
-			String trPath=base+"temp\\${jobId}jiebaTextRank.txt";
+			String trPath=base+"/temp/${jobId}jiebaTextRank.txt";
 			jiebaTextrank=new File(trPath);
 			if(!jiebaTextrank.exists()){
 				log.error "File not found: ${trPath}";

@@ -27,7 +27,7 @@ class KeywordsExtractor {
 		Weibo.withTransaction{weibos=Weibo.findAll("from Weibo as w where w.ownerName=?", [u.weiboName]);}
 		if(weibos==null||weibos.size()==0){
 			log.info "No weibo found for user. Keyword study finished.";
-			jobLog("The user has no microblog known in the database so no result from keyword study. You should activate the crawler to collect them first.");
+			jobLog(job.id, "The user has no microblog known in the database so no result from keyword study. You should activate the crawler to collect them first.");
 			return;
 		}
 		log.info "Studying user keywords based on ${weibos.size()} weibo items.";

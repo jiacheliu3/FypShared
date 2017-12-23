@@ -20,45 +20,62 @@ class CrackedCookieRepo {
 	public static init(){
 		//allCookies=new ArrayList<>();
 		allCookies=new HashMap<>();
-		//1st
-		def data=[:];
-		//		data["SSOLoginState"]="1453705731";
-		//		data["SUB"]="_2A257o12xDeTxGeNI6lYU9y7IwjqIHXVZbGP5rDV6PUJbstANLUPtkW1LHeuRLReS2CMn3T8vndU32hGsgBnzuQ..";
-		//		data["SUBP"]="0033WrSXqPxfM725Ws9jqgMF55529P9D9W52ck6hPOverwBC8pj1Tvjq5JpX5o2p";
-		//		data["SUHB"]="08JrN0xnw_LcLe";
-		//		data["_T_WM"]="be3b90897a3f231a69328f70b4a44ac4";
-		//		data["gsid_CTandWM"]="4uS6CpOz58HrY6LJuqVx4nyBA80";
-		data["SSOLoginState"]="1460784675";
-		data["SUB"]="_2A256Fb5zDeTxGeNI6lYU9y7IwjqIHXVZ-cI7rDV6PUJbstBeLUOlkW1LHeteRnhZoZdXHEDelQnSVqul9R5OxA..";
-		data["SUBP"]="0033WrSXqPxfM725Ws9jqgMF55529P9D9W52ck6hPOverwBC8pj1Tvjq5JpX5o2p";
-		data["SUHB"]="0U1ZjnLIMOK5qq";
-		data["_T_WM"]="8683f45e19ed8da1dcd295e7f9d950d0";
-		data["gsid_CTandWM"]="4ugMCpOz5uweIehx8xAAZnyBA80";
-		data["mobile"]='theia_fq@163.com';
-		if(useful(data)){
-			allCookies.put(new CrackedCookie(data),new Boolean(true));
-			log.info "1st cookie initialized.";
-		}else{
-			log.error "1st cookie is not valid any more!";
-		}
+//		//1st
+//		def data=[:];
+//		//		data["SSOLoginState"]="1453705731";
+//		//		data["SUB"]="_2A257o12xDeTxGeNI6lYU9y7IwjqIHXVZbGP5rDV6PUJbstANLUPtkW1LHeuRLReS2CMn3T8vndU32hGsgBnzuQ..";
+//		//		data["SUBP"]="0033WrSXqPxfM725Ws9jqgMF55529P9D9W52ck6hPOverwBC8pj1Tvjq5JpX5o2p";
+//		//		data["SUHB"]="08JrN0xnw_LcLe";
+//		//		data["_T_WM"]="be3b90897a3f231a69328f70b4a44ac4";
+//		//		data["gsid_CTandWM"]="4uS6CpOz58HrY6LJuqVx4nyBA80";
+//		data["SSOLoginState"]="1460784675";
+//		data["SUB"]="_2A256Fb5zDeTxGeNI6lYU9y7IwjqIHXVZ-cI7rDV6PUJbstBeLUOlkW1LHeteRnhZoZdXHEDelQnSVqul9R5OxA..";
+//		data["SUBP"]="0033WrSXqPxfM725Ws9jqgMF55529P9D9W52ck6hPOverwBC8pj1Tvjq5JpX5o2p";
+//		data["SUHB"]="0U1ZjnLIMOK5qq";
+//		data["_T_WM"]="8683f45e19ed8da1dcd295e7f9d950d0";
+//		data["gsid_CTandWM"]="4ugMCpOz5uweIehx8xAAZnyBA80";
+//		data["mobile"]='theia_fq@163.com';
+//		if(useful(data)){
+//			allCookies.put(new CrackedCookie(data),new Boolean(true));
+//			log.info "1st cookie initialized.";
+//		}else{
+//			log.error "1st cookie is not valid any more!";
+//		}
+//
+//		//2nd
+//		def data1=[:];
+//		//		data1["SUB"]="_2A257mV_HDeRxGeNJ6FQT9CvLyDWIHXVZYmGPrDV6PUJbrdANLVT7kW1LHeuRAFREkVBOlepzu9C9YD-7bWsfAw..";
+//		//		data1["_T_WM"]="7c4c1161f96a25858934b16bd7887a83";
+//		//		data1["gsid_CTandWM"]="4u42CpOz5I1CYn6hLFzmMo4g5bV";
+//		data1["SSOLoginState"]="1454061240";
+//		data1["SUB"]="_2A257r0boDeRxGeNJ6FQT9CvLyDWIHXVZUGqgrDV6PUJbstBeLWbfkW1LHetL8cTzv1VersJ177LBycBTYyIIFw..";
+//		data1["SUBP"]="0033WrSXqPxfM725Ws9jqgMF55529P9D9W5HEln_9O7yLQbRLjxh0O4v5JpX5o2p";
+//		data1["SUHB"]="0jBIvQRBCKztiy";
+//		data1["_T_WM"]="0d19fe95e27c47dccecbc0a8eddb5d56";
+//		data1["gsid_CTandWM"]="4uNNCpOz5hl3kAutfnsQDo4g5bV";
+//		data1["mobile"]="18717731224";
+//		if(useful(data1)){
+//			allCookies.put(new CrackedCookie(data1),new Boolean(true));
+//			log.info "2nd cookie initialized.";
+//		}else{
+//			log.error "2nd cookie is not valid any more!";
+//		}
 
-		//2nd
-		def data1=[:];
-		//		data1["SUB"]="_2A257mV_HDeRxGeNJ6FQT9CvLyDWIHXVZYmGPrDV6PUJbrdANLVT7kW1LHeuRAFREkVBOlepzu9C9YD-7bWsfAw..";
-		//		data1["_T_WM"]="7c4c1161f96a25858934b16bd7887a83";
-		//		data1["gsid_CTandWM"]="4u42CpOz5I1CYn6hLFzmMo4g5bV";
-		data1["SSOLoginState"]="1454061240";
-		data1["SUB"]="_2A257r0boDeRxGeNJ6FQT9CvLyDWIHXVZUGqgrDV6PUJbstBeLWbfkW1LHetL8cTzv1VersJ177LBycBTYyIIFw..";
-		data1["SUBP"]="0033WrSXqPxfM725Ws9jqgMF55529P9D9W5HEln_9O7yLQbRLjxh0O4v5JpX5o2p";
-		data1["SUHB"]="0jBIvQRBCKztiy";
-		data1["_T_WM"]="0d19fe95e27c47dccecbc0a8eddb5d56";
-		data1["gsid_CTandWM"]="4uNNCpOz5hl3kAutfnsQDo4g5bV";
-		data1["mobile"]="18717731224";
-		if(useful(data1)){
-			allCookies.put(new CrackedCookie(data1),new Boolean(true));
-			log.info "2nd cookie initialized.";
+		// new 12/17/2017
+		def data2=[:];
+		data2["SSOLoginState"]="1513911737";
+		data2["SUB"]="_2A253OAXpDeThGeBM7FoT9y7FyDqIHXVUwquhrDV6PUJbktBeLVGtkW1NRNYGQQuX8qQ2b1Ok4-0fH8f80-hYbB-k";
+		data2["SUBP"]="0033WrSXqPxfM725Ws9jqgMF55529P9D9WW4ISJ0W3S1OzL6Eyzal0BG5JpX5K-hUgL.FoqES0nES054e0q2dJLoI7fPIs8j9PSWMJHhdcvj";
+		data2["SUHB"]="0LcCJFo6_YE1fe";
+		data2["_T_WM"]="bdc8929acaefc3bda1f4a07a2191fa5a";
+		data2["SCF"]="AnXpKS2p5yrFhp1yBJV4eRW8VEpRiWO1xM9R-Mh6eQLpc-ec2BBObmkU0cbEQWFchvXK_uFxvA-eZrLFcCJbAn8."
+		data2["ALF"]="1516503680";
+		data2["un"]="jiacheliu3@gmail.com";
+		if(useful(data2)){
+			allCookies.put(new CrackedCookie(data2),new Boolean(true));
+			log.info "3rd cookie initialized.";
 		}else{
-			log.error "2nd cookie is not valid any more!";
+			log.error "3rd cookie is not valid any more!";
 		}
 
 		if(allCookies.size()==0){

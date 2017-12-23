@@ -4,7 +4,8 @@ import groovy.util.logging.Log4j
 import keyword.KeywordsExtractor
 import segmentation.SepManager
 import codebigbrosub.Weibo
-
+import toolkit.PathManager
+import java.util.Random;
 
 @Log4j
 class PatternMiner {
@@ -32,8 +33,10 @@ class PatternMiner {
 			log.info "${items.size()} items for pattern mining.";
 		}
 		//output to a file
-		int i=100;
-		String path="D:/pattern/${i}.txt";
+        Random rand=new Random();
+		int i=rand.nextInt();
+//		String path="D:/pattern/${i}.txt";
+		String path=PathManager.patternBasePath+"/pattern/${i}.txt";
 		File input=new File(path);
 		if(input.exists()){
 			log.info "File ${path} already exists. Deleting it first.";

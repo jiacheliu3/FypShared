@@ -1,5 +1,7 @@
 package input
 
+import toolkit.PathManager
+
 import java.io.File;
 import java.util.List;
 
@@ -8,7 +10,8 @@ import groovy.util.logging.Log4j
 @Log4j
 class FileVisitor {
 
-	static String basePath="C:/Users/jiacheliu3/workspace/CodeBigBroSub/web-app/resources/";
+//	static String basePath="C:/Users/jiacheliu3/workspace/CodeBigBroSub/web-app/resources/";
+	static String basePath=PathManager.appResourceFolder;
 	public static String readFileContent(String path){
 		String filePath=basePath+path;
 		File input=new File(filePath);

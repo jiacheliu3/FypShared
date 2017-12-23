@@ -1,0 +1,260 @@
+NoTitle
+org.codehaus.groovy.grails.FLASH_SCOPE: [:]
+codebigbrosub.FrameworkController: codebigbrosub.FrameworkController@26ef64e0
+org.springframework.web.context.request.ServletRequestAttributes.DESTRUCTION_CALLBACK.codebigbrosub.FrameworkController: org.springframework.web.context.request.DestructionCallbackBindingListener@685a7d3c
+NoTitle
+org.codehaus.groovy.grails.FLASH_SCOPE: [:]
+codebigbrosub.FrameworkController: codebigbrosub.FrameworkController@26ef64e0
+org.springframework.web.context.request.ServletRequestAttributes.DESTRUCTION_CALLBACK.codebigbrosub.FrameworkController: org.springframework.web.context.request.DestructionCallbackBindingListener@685a7d3c
+NoTitle
+org.codehaus.groovy.grails.FLASH_SCOPE: [:]
+codebigbrosub.FrameworkController: codebigbrosub.FrameworkController@7137b7a
+org.springframework.web.context.request.ServletRequestAttributes.DESTRUCTION_CALLBACK.codebigbrosub.FrameworkController: org.springframework.web.context.request.DestructionCallbackBindingListener@4fc99d50
+NoTitle
+org.codehaus.groovy.grails.FLASH_SCOPE: [:]
+codebigbrosub.FrameworkController: codebigbrosub.FrameworkController@7137b7a
+org.springframework.web.context.request.ServletRequestAttributes.DESTRUCTION_CALLBACK.codebigbrosub.FrameworkController: org.springframework.web.context.request.DestructionCallbackBindingListener@4fc99d50
+NoTitle
+codebigbrosub.FrameworkController: codebigbrosub.FrameworkController@1684ac3e
+org.codehaus.groovy.grails.FLASH_SCOPE: [:]
+org.springframework.web.context.request.ServletRequestAttributes.DESTRUCTION_CALLBACK.codebigbrosub.FrameworkController: org.springframework.web.context.request.DestructionCallbackBindingListener@7e484a
+NoTitle
+codebigbrosub.FrameworkController: codebigbrosub.FrameworkController@1684ac3e
+org.codehaus.groovy.grails.FLASH_SCOPE: [:]
+org.springframework.web.context.request.ServletRequestAttributes.DESTRUCTION_CALLBACK.codebigbrosub.FrameworkController: org.springframework.web.context.request.DestructionCallbackBindingListener@7e484a
+NoTitle
+codebigbrosub.FrameworkController: codebigbrosub.FrameworkController@59c84388
+org.codehaus.groovy.grails.FLASH_SCOPE: [:]
+org.springframework.web.context.request.ServletRequestAttributes.DESTRUCTION_CALLBACK.codebigbrosub.FrameworkController: org.springframework.web.context.request.DestructionCallbackBindingListener@28a3db97
+NoTitle
+codebigbrosub.FrameworkController: codebigbrosub.FrameworkController@59c84388
+org.codehaus.groovy.grails.FLASH_SCOPE: [:]
+org.springframework.web.context.request.ServletRequestAttributes.DESTRUCTION_CALLBACK.codebigbrosub.FrameworkController: org.springframework.web.context.request.DestructionCallbackBindingListener@28a3db97
+NoTitle
+running: 1
+jobId: 1
+codebigbrosub.FrameworkController: codebigbrosub.FrameworkController@59c84388
+org.codehaus.groovy.grails.FLASH_SCOPE: [chainModel:[:]]
+wName: 诺亚的大船
+wId: codeFZ
+crawler: [userUrl:http://weibo.cn/u/2709164431, userName:诺亚的大船, userId:2709164431, faceUrl:http://tva1.sinaimg.cn/crop.210.5.658.658.1024/a17a918fjw8exozw0jl8qj20wx0iqtc8.jpg, weiboCount:282, weiboCountSpan:<span class="tc">微博[282]</span>, following:<a href="http://weibo.cn/2709164431/follow">关注[143]</a>, followed:<a href="http://weibo.cn/2709164431/fans">粉丝[37]</a>, grouping:<a href="http://weibo.cn/attgroup/opening?uid=2709164431">分组[1]</a>, mentioned:<a href="http://weibo.cn/at/weibo?uid=2709164431">@他的</a>, pageCount:27, botCount:1, knownCount:0, gotCount:10]
+org.springframework.web.context.request.ServletRequestAttributes.DESTRUCTION_CALLBACK.codebigbrosub.FrameworkController: org.springframework.web.context.request.DestructionCallbackBindingListener@28a3db97
+user: codebigbrosub.User : 1
+wUrl: 
+NoTitle
+running: 1
+jobId: 1
+codebigbrosub.FrameworkController: codebigbrosub.FrameworkController@59c84388
+org.codehaus.groovy.grails.FLASH_SCOPE: [chainModel:[:]]
+wName: 诺亚的大船
+wId: codeFZ
+org.springframework.web.context.request.ServletRequestAttributes.DESTRUCTION_CALLBACK.codebigbrosub.FrameworkController: org.springframework.web.context.request.DestructionCallbackBindingListener@28a3db97
+user: codebigbrosub.User : 1
+wUrl: 
+NoTitle
+running: 1
+jobId: 1
+codebigbrosub.FrameworkController: codebigbrosub.FrameworkController@59c84388
+org.codehaus.groovy.grails.FLASH_SCOPE: [:]
+wName: 诺亚的大船
+wId: codeFZ
+org.springframework.web.context.request.ServletRequestAttributes.DESTRUCTION_CALLBACK.codebigbrosub.FrameworkController: org.springframework.web.context.request.DestructionCallbackBindingListener@28a3db97
+user: codebigbrosub.User : 1
+wUrl: 
+NoTitle
+running: 1
+jobId: 1
+codebigbrosub.FrameworkController: codebigbrosub.FrameworkController@59c84388
+org.codehaus.groovy.grails.FLASH_SCOPE: [:]
+wName: 诺亚的大船
+wId: codeFZ
+org.springframework.web.context.request.ServletRequestAttributes.DESTRUCTION_CALLBACK.codebigbrosub.FrameworkController: org.springframework.web.context.request.DestructionCallbackBindingListener@28a3db97
+user: codebigbrosub.User : 1
+wUrl: 
+NoTitle
+codebigbrosub.FrameworkController: codebigbrosub.FrameworkController@2856ea95
+org.codehaus.groovy.grails.FLASH_SCOPE: [:]
+org.springframework.web.context.request.ServletRequestAttributes.DESTRUCTION_CALLBACK.codebigbrosub.FrameworkController: org.springframework.web.context.request.DestructionCallbackBindingListener@a4b2453
+NoTitle
+codebigbrosub.FrameworkController: codebigbrosub.FrameworkController@2856ea95
+org.codehaus.groovy.grails.FLASH_SCOPE: [:]
+org.springframework.web.context.request.ServletRequestAttributes.DESTRUCTION_CALLBACK.codebigbrosub.FrameworkController: org.springframework.web.context.request.DestructionCallbackBindingListener@a4b2453
+NoTitle
+running: 1
+jobId: 1
+codebigbrosub.FrameworkController: codebigbrosub.FrameworkController@2856ea95
+org.codehaus.groovy.grails.FLASH_SCOPE: [chainModel:[:]]
+wName: 诺亚的大船
+wId: codeFZ
+crawler: [userUrl:http://weibo.cn/u/2709164431, userName:诺亚的大船, userId:2709164431, faceUrl:http://tva1.sinaimg.cn/crop.210.5.658.658.1024/a17a918fjw8exozw0jl8qj20wx0iqtc8.jpg, weiboCount:282, weiboCountSpan:<span class="tc">微博[282]</span>, following:<a href="http://weibo.cn/2709164431/follow">关注[143]</a>, followed:<a href="http://weibo.cn/2709164431/fans">粉丝[37]</a>, grouping:<a href="http://weibo.cn/attgroup/opening?uid=2709164431">分组[1]</a>, mentioned:<a href="http://weibo.cn/at/weibo?uid=2709164431">@他的</a>, pageCount:27, botCount:1, knownCount:0, gotCount:10]
+org.springframework.web.context.request.ServletRequestAttributes.DESTRUCTION_CALLBACK.codebigbrosub.FrameworkController: org.springframework.web.context.request.DestructionCallbackBindingListener@a4b2453
+user: codebigbrosub.User : 1
+wUrl: 
+NoTitle
+running: 1
+jobId: 1
+codebigbrosub.FrameworkController: codebigbrosub.FrameworkController@2856ea95
+org.codehaus.groovy.grails.FLASH_SCOPE: [chainModel:[:]]
+wName: 诺亚的大船
+wId: codeFZ
+org.springframework.web.context.request.ServletRequestAttributes.DESTRUCTION_CALLBACK.codebigbrosub.FrameworkController: org.springframework.web.context.request.DestructionCallbackBindingListener@a4b2453
+user: codebigbrosub.User : 1
+wUrl: 
+NoTitle
+running: 1
+jobId: 1
+codebigbrosub.FrameworkController: codebigbrosub.FrameworkController@2856ea95
+org.codehaus.groovy.grails.FLASH_SCOPE: [:]
+wName: 诺亚的大船
+wId: codeFZ
+org.springframework.web.context.request.ServletRequestAttributes.DESTRUCTION_CALLBACK.codebigbrosub.FrameworkController: org.springframework.web.context.request.DestructionCallbackBindingListener@a4b2453
+user: codebigbrosub.User : 1
+wUrl: 
+NoTitle
+running: 1
+jobId: 1
+codebigbrosub.FrameworkController: codebigbrosub.FrameworkController@2856ea95
+org.codehaus.groovy.grails.FLASH_SCOPE: [:]
+wName: 诺亚的大船
+wId: codeFZ
+org.springframework.web.context.request.ServletRequestAttributes.DESTRUCTION_CALLBACK.codebigbrosub.FrameworkController: org.springframework.web.context.request.DestructionCallbackBindingListener@a4b2453
+user: codebigbrosub.User : 1
+wUrl: 
+NoTitle
+codebigbrosub.FrameworkController: codebigbrosub.FrameworkController@26818829
+org.codehaus.groovy.grails.FLASH_SCOPE: [:]
+org.springframework.web.context.request.ServletRequestAttributes.DESTRUCTION_CALLBACK.codebigbrosub.FrameworkController: org.springframework.web.context.request.DestructionCallbackBindingListener@162db201
+NoTitle
+codebigbrosub.FrameworkController: codebigbrosub.FrameworkController@26818829
+org.codehaus.groovy.grails.FLASH_SCOPE: [:]
+org.springframework.web.context.request.ServletRequestAttributes.DESTRUCTION_CALLBACK.codebigbrosub.FrameworkController: org.springframework.web.context.request.DestructionCallbackBindingListener@162db201
+NoTitle
+running: 1
+jobId: 1
+codebigbrosub.FrameworkController: codebigbrosub.FrameworkController@26818829
+org.codehaus.groovy.grails.FLASH_SCOPE: [chainModel:[:]]
+wName: 诺亚的大船
+wId: codeFZ
+crawler: [userUrl:http://weibo.cn/u/2709164431, userName:诺亚的大船, userId:2709164431, faceUrl:http://tva1.sinaimg.cn/crop.210.5.658.658.1024/a17a918fjw8exozw0jl8qj20wx0iqtc8.jpg, weiboCount:282, weiboCountSpan:<span class="tc">微博[282]</span>, following:<a href="http://weibo.cn/2709164431/follow">关注[143]</a>, followed:<a href="http://weibo.cn/2709164431/fans">粉丝[37]</a>, grouping:<a href="http://weibo.cn/attgroup/opening?uid=2709164431">分组[1]</a>, mentioned:<a href="http://weibo.cn/at/weibo?uid=2709164431">@他的</a>, pageCount:27, botCount:1, knownCount:0, gotCount:10]
+org.springframework.web.context.request.ServletRequestAttributes.DESTRUCTION_CALLBACK.codebigbrosub.FrameworkController: org.springframework.web.context.request.DestructionCallbackBindingListener@162db201
+user: codebigbrosub.User : 1
+wUrl: 
+NoTitle
+running: 1
+jobId: 1
+codebigbrosub.FrameworkController: codebigbrosub.FrameworkController@26818829
+org.codehaus.groovy.grails.FLASH_SCOPE: [chainModel:[:]]
+wName: 诺亚的大船
+wId: codeFZ
+org.springframework.web.context.request.ServletRequestAttributes.DESTRUCTION_CALLBACK.codebigbrosub.FrameworkController: org.springframework.web.context.request.DestructionCallbackBindingListener@162db201
+user: codebigbrosub.User : 1
+wUrl: 
+NoTitle
+running: 1
+jobId: 1
+codebigbrosub.FrameworkController: codebigbrosub.FrameworkController@26818829
+org.codehaus.groovy.grails.FLASH_SCOPE: [:]
+wName: 诺亚的大船
+wId: codeFZ
+org.springframework.web.context.request.ServletRequestAttributes.DESTRUCTION_CALLBACK.codebigbrosub.FrameworkController: org.springframework.web.context.request.DestructionCallbackBindingListener@162db201
+user: codebigbrosub.User : 1
+wUrl: 
+NoTitle
+running: 1
+jobId: 1
+codebigbrosub.FrameworkController: codebigbrosub.FrameworkController@26818829
+org.codehaus.groovy.grails.FLASH_SCOPE: [:]
+wName: 诺亚的大船
+wId: codeFZ
+org.springframework.web.context.request.ServletRequestAttributes.DESTRUCTION_CALLBACK.codebigbrosub.FrameworkController: org.springframework.web.context.request.DestructionCallbackBindingListener@162db201
+user: codebigbrosub.User : 1
+wUrl: 
+NoTitle
+codebigbrosub.FrameworkController: codebigbrosub.FrameworkController@42acad65
+org.codehaus.groovy.grails.FLASH_SCOPE: [:]
+org.springframework.web.context.request.ServletRequestAttributes.DESTRUCTION_CALLBACK.codebigbrosub.FrameworkController: org.springframework.web.context.request.DestructionCallbackBindingListener@64eff341
+NoTitle
+codebigbrosub.FrameworkController: codebigbrosub.FrameworkController@42acad65
+org.codehaus.groovy.grails.FLASH_SCOPE: [:]
+org.springframework.web.context.request.ServletRequestAttributes.DESTRUCTION_CALLBACK.codebigbrosub.FrameworkController: org.springframework.web.context.request.DestructionCallbackBindingListener@64eff341
+NoTitle
+codebigbrosub.FrameworkController: codebigbrosub.FrameworkController@4674cd7e
+org.codehaus.groovy.grails.FLASH_SCOPE: [:]
+org.springframework.web.context.request.ServletRequestAttributes.DESTRUCTION_CALLBACK.codebigbrosub.FrameworkController: org.springframework.web.context.request.DestructionCallbackBindingListener@17d1f313
+NoTitle
+codebigbrosub.FrameworkController: codebigbrosub.FrameworkController@4674cd7e
+org.codehaus.groovy.grails.FLASH_SCOPE: [:]
+org.springframework.web.context.request.ServletRequestAttributes.DESTRUCTION_CALLBACK.codebigbrosub.FrameworkController: org.springframework.web.context.request.DestructionCallbackBindingListener@17d1f313
+NoTitle
+codebigbrosub.FrameworkController: codebigbrosub.FrameworkController@25de1fd7
+org.codehaus.groovy.grails.FLASH_SCOPE: [:]
+org.springframework.web.context.request.ServletRequestAttributes.DESTRUCTION_CALLBACK.codebigbrosub.FrameworkController: org.springframework.web.context.request.DestructionCallbackBindingListener@6d4738f2
+NoTitle
+codebigbrosub.FrameworkController: codebigbrosub.FrameworkController@25de1fd7
+org.codehaus.groovy.grails.FLASH_SCOPE: [:]
+org.springframework.web.context.request.ServletRequestAttributes.DESTRUCTION_CALLBACK.codebigbrosub.FrameworkController: org.springframework.web.context.request.DestructionCallbackBindingListener@6d4738f2
+NoTitle
+running: 1
+jobId: 1
+codebigbrosub.FrameworkController: codebigbrosub.FrameworkController@25de1fd7
+org.codehaus.groovy.grails.FLASH_SCOPE: [chainModel:[:]]
+wName: 诺亚的大船
+wId: codeFZ
+crawler: [userUrl:http://weibo.cn/u/2709164431, userName:诺亚的大船, userId:2709164431, faceUrl:http://tva1.sinaimg.cn/crop.210.5.658.658.1024/a17a918fjw8exozw0jl8qj20wx0iqtc8.jpg, weiboCount:282, weiboCountSpan:<span class="tc">微博[282]</span>, following:<a href="http://weibo.cn/2709164431/follow">关注[143]</a>, followed:<a href="http://weibo.cn/2709164431/fans">粉丝[37]</a>, grouping:<a href="http://weibo.cn/attgroup/opening?uid=2709164431">分组[1]</a>, mentioned:<a href="http://weibo.cn/at/weibo?uid=2709164431">@他的</a>, pageCount:27, botCount:1, knownCount:0, gotCount:10]
+org.springframework.web.context.request.ServletRequestAttributes.DESTRUCTION_CALLBACK.codebigbrosub.FrameworkController: org.springframework.web.context.request.DestructionCallbackBindingListener@6d4738f2
+user: codebigbrosub.User : 1
+wUrl: 
+NoTitle
+running: 1
+jobId: 1
+codebigbrosub.FrameworkController: codebigbrosub.FrameworkController@25de1fd7
+org.codehaus.groovy.grails.FLASH_SCOPE: [chainModel:[:]]
+wName: 诺亚的大船
+wId: codeFZ
+org.springframework.web.context.request.ServletRequestAttributes.DESTRUCTION_CALLBACK.codebigbrosub.FrameworkController: org.springframework.web.context.request.DestructionCallbackBindingListener@6d4738f2
+user: codebigbrosub.User : 1
+wUrl: 
+NoTitle
+running: 1
+jobId: 1
+codebigbrosub.FrameworkController: codebigbrosub.FrameworkController@25de1fd7
+org.codehaus.groovy.grails.FLASH_SCOPE: [:]
+wName: 诺亚的大船
+wId: codeFZ
+org.springframework.web.context.request.ServletRequestAttributes.DESTRUCTION_CALLBACK.codebigbrosub.FrameworkController: org.springframework.web.context.request.DestructionCallbackBindingListener@6d4738f2
+user: codebigbrosub.User : 1
+wUrl: 
+NoTitle
+running: 1
+jobId: 1
+codebigbrosub.FrameworkController: codebigbrosub.FrameworkController@25de1fd7
+org.codehaus.groovy.grails.FLASH_SCOPE: [:]
+wName: 诺亚的大船
+wId: codeFZ
+org.springframework.web.context.request.ServletRequestAttributes.DESTRUCTION_CALLBACK.codebigbrosub.FrameworkController: org.springframework.web.context.request.DestructionCallbackBindingListener@6d4738f2
+user: codebigbrosub.User : 1
+wUrl: 
+NoTitle
+codebigbrosub.FrameworkController: codebigbrosub.FrameworkController@657be25e
+org.codehaus.groovy.grails.FLASH_SCOPE: [:]
+org.springframework.web.context.request.ServletRequestAttributes.DESTRUCTION_CALLBACK.codebigbrosub.FrameworkController: org.springframework.web.context.request.DestructionCallbackBindingListener@3482be54
+NoTitle
+codebigbrosub.FrameworkController: codebigbrosub.FrameworkController@657be25e
+org.codehaus.groovy.grails.FLASH_SCOPE: [:]
+org.springframework.web.context.request.ServletRequestAttributes.DESTRUCTION_CALLBACK.codebigbrosub.FrameworkController: org.springframework.web.context.request.DestructionCallbackBindingListener@3482be54
+NoTitle
+codebigbrosub.FrameworkController: codebigbrosub.FrameworkController@6a267f8e
+org.codehaus.groovy.grails.FLASH_SCOPE: [:]
+org.springframework.web.context.request.ServletRequestAttributes.DESTRUCTION_CALLBACK.codebigbrosub.FrameworkController: org.springframework.web.context.request.DestructionCallbackBindingListener@7c9f3795
+NoTitle
+codebigbrosub.FrameworkController: codebigbrosub.FrameworkController@6a267f8e
+org.codehaus.groovy.grails.FLASH_SCOPE: [:]
+org.springframework.web.context.request.ServletRequestAttributes.DESTRUCTION_CALLBACK.codebigbrosub.FrameworkController: org.springframework.web.context.request.DestructionCallbackBindingListener@7c9f3795
+NoTitle
+codebigbrosub.FrameworkController: codebigbrosub.FrameworkController@6ac43c4e
+org.codehaus.groovy.grails.FLASH_SCOPE: [:]
+org.springframework.web.context.request.ServletRequestAttributes.DESTRUCTION_CALLBACK.codebigbrosub.FrameworkController: org.springframework.web.context.request.DestructionCallbackBindingListener@785840e8
+NoTitle
+codebigbrosub.FrameworkController: codebigbrosub.FrameworkController@6ac43c4e
+org.codehaus.groovy.grails.FLASH_SCOPE: [:]
+org.springframework.web.context.request.ServletRequestAttributes.DESTRUCTION_CALLBACK.codebigbrosub.FrameworkController: org.springframework.web.context.request.DestructionCallbackBindingListener@785840e8

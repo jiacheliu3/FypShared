@@ -35,6 +35,9 @@ class User {
 	/* Updated in 1.2 */
 	String infoElement;
 
+	/* Updated in 1.3beta */
+	int keywordsBasedOn;
+
 	//personal info
 	String name;
 	String phone;
@@ -47,7 +50,8 @@ class User {
 //		keywords sqltype:'mediumblob';
 		//keywords sqltype:'text';
 		//keywords type:'text';
-		keywords sqlType: 'VARBINARY(100000)'
+//		keywords sqlType: 'VARBINARY(100000)'
+		keywords sqlType: 'blob'
 		
 		forwarding sqlType: 'blob'
 		forwarded sqlType: 'blob'

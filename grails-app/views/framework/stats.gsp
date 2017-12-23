@@ -843,58 +843,62 @@
                   dataType : "json",
                   async : true
                 }).done(function(jsonData) {
-          //result=['all':allCount,'gender':gender,'age':age,'geo':geo,'tag':tags,'edu':edu,'work':work,'authCount':authCount,'authList':authList,'intro':introKeywords,'introLong':longestIntro];
-          console.log("Got stats");
-          console.dir(jsonData);
-          
-          //all count
-          var allCount=jsonData["allCount"];
 
-      //gender information
-      var gender = jsonData["gender"];
-      console.log("Draw gender map");
-      drawGender(gender);
+                  //result=['all':allCount,'gender':gender,'age':age,'geo':geo,'tag':tags,'edu':edu,'work':work,'authCount':authCount,'authList':authList,'intro':introKeywords,'introLong':longestIntro];
 
-          //age
-          var age = jsonData["age"];
-          console.log("Display age info ");          
-          ageWorkFlow(age,allCount);
-          
-          //tag
-          var tag=jsonData["tag"];
-          console.log("Display tags");
-          tagWorkFlow(tag);
-          
-          //geographical data
-          var geo = jsonData["geo"];
-          console.log("Draw map");
-          console.log(geo);
-          //var geoData=mapFormat(geo);
-          goWithTheMap(geo);
-          
-          //introduction
-          console.log("Displaying introduction info");
-          var intro=jsonData["intro"];
-          keywordWorkFlow(intro,"intro");
+                  console.log("Got stats");
+                  console.dir(jsonData);
 
-          //authentication
-          console.log("Displaying authentication info");
-          var auth=jsonData["auth"];
-          authWorkFlow(auth,"auth");
-          
-          //education
-          console.log("Draw school distribution");
-          var edu = jsonData["edu"];
-          bubbleWorkFlow(edu,"edu",allCount);
-          
-          //work 
-          console.log("Draw work distribution");
-          var work = jsonData["work"];
-          //drawBubbleChart("#workDist", work);
-          //var workTable = generateTable(work);
-          //bubbleClick(workTable, "#workDist", "work");
-          bubbleWorkFlow(work,"work",allCount);
-          
+                  var friends=jsonData["friends"];
+
+                  //all count
+                  var allCount=friends["allCount"];
+
+                  //gender information
+                  var gender = friends["gender"];
+                  console.log("Draw gender map");
+                  drawGender(gender);
+
+                  //age
+                  var age = friends["age"];
+                  console.log("Display age info ");
+                  ageWorkFlow(age,allCount);
+
+                  //tag
+                  var tag=friends["tag"];
+                  console.log("Display tags");
+                  tagWorkFlow(tag);
+
+                  //geographical data
+                  var geo = friends["geo"];
+                  console.log("Draw map");
+                  console.log(geo);
+                  //var geoData=mapFormat(geo);
+                  goWithTheMap(geo);
+
+                  //introduction
+                  console.log("Displaying introduction info");
+                  var intro=friends["intro"];
+                  keywordWorkFlow(intro,"intro");
+
+                  //authentication
+                  console.log("Displaying authentication info");
+                  var auth=friends["auth"];
+                  authWorkFlow(auth,"auth");
+
+                  //education
+                  console.log("Draw school distribution");
+                  var edu = friends["edu"];
+                  bubbleWorkFlow(edu,"edu",allCount);
+
+                  //work
+                  console.log("Draw work distribution");
+                  var work = friends["work"];
+                  //drawBubbleChart("#workDist", work);
+                  //var workTable = generateTable(work);
+                  //bubbleClick(workTable, "#workDist", "work");
+                  bubbleWorkFlow(work,"work",allCount);
+
           
           
           
